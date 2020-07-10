@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Sample Project</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta http-equiv="cleartype" content="on">
+    <style>
+      html,
+      body {
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+      }
+      body {
+        background-color: #EE6352;
+      }
+      canvas {
+        margin: auto !important;
+        padding: 2rem !important;
+        overflow: hidden !important;
+        flex-shrink: 0;
+      }
+      #content {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+      h1, h2 {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>The game</h1>
+    <h2>WASD to move, R to restart</h2>
+    <div id="content">
+      <canvas id="canvas"></canvas>
+    </div>
+    <script src="vendors.app.bundle.js"></script>
+    <script src="app.bundle.js"></script>
+  </body>
+</html>
