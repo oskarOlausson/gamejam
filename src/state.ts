@@ -21,5 +21,5 @@ export const init = (): State => ({
   keys: new Set(),
   towers: [tower(W / 2, 50, 0)],
   frame: 0,
-  click: null
+  click: null,
 })

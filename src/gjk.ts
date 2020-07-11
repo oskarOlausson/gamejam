@@ -1,7 +1,7 @@
 /*
   Colllision system for convex polygons
 */
-import {W, H} from "./constants"
+import { W, H } from './constants'
 
 type Point = [number, number]
 type Point3d = [number, number, number]
@@ -29,20 +29,36 @@ export type Polygon = {
 
 export const borders: Shape[] = [
   {
-    type: "polygon",
-    points: [[0, 0], [W/2, 0], [0, H/2]]
+    type: 'polygon',
+    points: [
+      [0, 0],
+      [W / 2, 0],
+      [0, H / 2],
+    ],
   },
   {
-    type: "polygon",
-    points: [[W/2, 0], [W, 0], [W, H/2]]
+    type: 'polygon',
+    points: [
+      [W / 2, 0],
+      [W, 0],
+      [W, H / 2],
+    ],
   },
   {
-    type: "polygon",
-    points: [[W, H/2], [W, H], [W/2, H]]
+    type: 'polygon',
+    points: [
+      [W, H / 2],
+      [W, H],
+      [W / 2, H],
+    ],
   },
   {
-    type: "polygon",
-    points: [[W/2, H], [0, H], [0, H/2]]
+    type: 'polygon',
+    points: [
+      [W / 2, H],
+      [0, H],
+      [0, H / 2],
+    ],
   },
 ]
 
@@ -223,10 +239,11 @@ export const overlaps = (shapeA: Shape, shapeB: Shape): boolean => {
   return result
 }
 
-export const shapeInBoard = (shape: Shape) => 
+export const shapeInBoard = (shape: Shape) =>
   pointInBoard(support(shape, [-1, -1])) &&
   pointInBoard(support(shape, [1, -1])) &&
   pointInBoard(support(shape, [-1, 1])) &&
   pointInBoard(support(shape, [1, 1]))
 
-const pointInBoard = ([x, y]: Point): boolean => (Math.abs(y - H/2) < Math.min(x, W-x))
+const pointInBoard = ([x, y]: Point): boolean =>
+  Math.abs(y - H / 2) < Math.min(x, W - x)

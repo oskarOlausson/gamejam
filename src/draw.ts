@@ -63,6 +63,7 @@ export const draw = (
   context.fillStyle = '#0f0'
   drawShape(context, ground, 'fill')
 
+  context.fillStyle = '#FFF'
   state.towers.forEach((tower) => {
     drawShape(context, tower, 'fill')
   })
