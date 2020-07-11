@@ -69,7 +69,6 @@ export const draw = (
   })
 
   context.fillStyle = '#fff'
-  drawShape(context, state.player, 'fill')
 
   state.towers.forEach((tower) => {
     drawShape(context, tower, 'fill')
@@ -87,24 +86,9 @@ export const draw = (
   // Draw line of sight's for towers
 
   state.towers.forEach((tower) => {
-    const radius = calculateSightRadius(state.frame, tower)
-    drawShape(
-      fowContext,
-      { type: 'circle', x: tower.x, y: tower.y, radius },
-      'fill',
-    )
+    const sightRadiusCircle = calculateSightRadius(state.frame, tower)
+    drawShape(fowContext, sightRadiusCircle, 'fill')
   })
-
-  drawShape(
-    fowContext,
-    {
-      type: 'circle',
-      x: centre(state.player)[0],
-      y: centre(state.player)[1],
-      radius: SEE_RADIUS,
-    },
-    'fill',
-  )
 
   state.gems
     .filter((gem) => gem.seen)
