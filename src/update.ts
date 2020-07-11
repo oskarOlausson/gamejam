@@ -2,51 +2,44 @@
  * All the game logic
  */
 
-import { State, init } from './state'
-import { tower, calculateSightRadius, Tower } from './tower'
-import { overlaps } from './gjk'
+import { State, init, Disc } from './state'
+import { getTravel, getShot } from './travel'
+
+const discPosition = (
+  disc: Disc,
+  frame: number,
+): [number, number] | undefined => disc.travel[frame - disc.travelStart]
+
+export const calculateDiscPosition = (disc: Disc, frame: number): Disc => {
+  const position = discPosition(disc, frame)
+  if (!position) {
+    return disc
+  }
+  return { ...disc, center: position }
+}
 
 export const update = (state: State): State => {
   if (state.keys.has('r')) {
     return init()
   }
 
-  const newState = {
-    ...state,
-  }
+  if (!discPosition(state.disc, state.frame) && state.shootNow) {
+    const [m, e] = getShot(state.mouse)
 
-  return { ...newState, ...handleClick(newState) }
-}
+    if (e[0] === 0 && e[1] === 0) {
+      return state
+    }
 
-const handleClick = (state: State): Partial<State> => {
-  if (state.click) {
-    const clickIsWithinSight = (
-      click: [number, number],
-      towers: Array<Tower>,
-    ): boolean =>
-      towers.some((tower) =>
-        overlaps(calculateSightRadius(state.frame, tower), {
-          type: 'circle',
-          x: click[0],
-          y: click[1],
-          radius: 5,
-        }),
-      )
-
-    if (
-      clickIsWithinSight(
-        state.click,
-        state.towers.filter((t) => t.p1 === state.p1),
-      )
-    ) {
-      const newTower = tower(
-        state.click[0],
-        state.click[1],
-        state.frame,
-        state.p1,
-      )
-      return { towers: [...state.towers, newTower], p1: !state.p1 }
+    return {
+      ...state,
+      shot: [m, e],
+      disc: {
+        ...state.disc,
+        travel: getTravel(state.disc.center, m, e, 1 / 180),
+        travelStart: state.frame,
+      },
     }
   }
-  return {}
+
+  return { ...state, disc: calculateDiscPosition(state.disc, state.frame) }
 }

@@ -3,20 +3,32 @@
  */
 
 import { W, H } from './constants'
-import { Tower, tower } from './tower'
+import { Vec2, Circle } from './gjk'
+
+export type Disc = Circle & {
+  travel: Vec2[]
+  travelStart: number
+}
 
 export type State = {
   keys: Set<string>
-  towers: Array<Tower>
   frame: number
-  click: [number, number] | null
-  p1: boolean
+  mouse: Vec2[]
+  disc: Disc
+  shootNow: boolean,
+  shot: Vec2[]
 }
 
 export const init = (): State => ({
   keys: new Set(),
-  towers: [tower(W / 2, 50, 0, false), tower(W / 2, H - 50, 0, true)],
   frame: 0,
-  click: null,
-  p1: true,
+  mouse: [],
+  disc: {
+    center: [W / 2, H - 50],
+    travel: [],
+    travelStart: 0,
+    radius: 20,
+  },
+  shootNow: false,
+  shot: []
 })

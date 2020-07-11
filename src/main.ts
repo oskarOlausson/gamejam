@@ -8,18 +8,7 @@ import { update } from './update'
 import { draw } from './draw'
 import { W, H, BACKGROUND_COLOR } from './constants'
 import { getMousePositionInElement } from './utils'
-
-const prepareCanvas = (id: string): CanvasRenderingContext2D => {
-  const canvas = document.getElementById(id) as HTMLCanvasElement
-  if (!canvas) {
-    throw new Error('No canvas found')
-  }
-  canvas.width = W
-  canvas.height = H
-  const context = canvas.getContext('2d')
-  if (!context) throw new Error(`No rendering context for canvas #${id}`)
-  return context
-}
+import { Vec2 } from './gjk'
 
 const game = (): void => {
   document.body.style.backgroundColor = BACKGROUND_COLOR
@@ -29,15 +18,14 @@ const game = (): void => {
   }
   container.style.width = W + 'px'
   container.style.height = H + 'px'
-  let queuedClick: [number, number] | null = null
 
-  const getQueuedClick = () => {
-    const bufferedClick = queuedClick
-    queuedClick = null
-    return bufferedClick
+  const canvas = document.getElementById('canvas') as HTMLCanvasElement
+  if (!canvas) {
+    throw new Error('No canvas found')
   }
-
-  const context = prepareCanvas('canvas')
+  canvas.width = W
+  canvas.height = H
+  const context = canvas.getContext('2d') as CanvasRenderingContext2D
 
   // key to timestamp
   const allKeys = new Map<string, boolean>()
@@ -50,17 +38,29 @@ const game = (): void => {
     allKeys.set(ev.key, false)
   }
 
-  function onClick(this: Window, event: MouseEvent) {
-    const canvas = document.querySelector('#canvas')
-    if (!canvas) {
-      throw new Error(`Couldn't find canvas element.`)
+  const ms: Vec2[] = []
+  let mouseIsDown = false
+
+  function onMouseDown(this: Window, ev: MouseEvent) {
+    mouseIsDown = true
+  }
+
+  function onMouseMove(this: Window, ev: MouseEvent) {
+    if (mouseIsDown) {
+      ms.push(getMousePositionInElement(canvas, ev))
     }
-    queuedClick = getMousePositionInElement(canvas, event)
+  }
+
+  function onMouseUp(this: Window, ev: MouseEvent) {
+    mouseIsDown = false
   }
 
   window.addEventListener('keydown', onKeyDown)
   window.addEventListener('keyup', onKeyUp)
-  window.addEventListener('click', onClick)
+  window.addEventListener('mousedown', onMouseDown)
+  window.addEventListener('mouseup', onMouseUp)
+  window.addEventListener('mouseout', onMouseUp)
+  window.addEventListener('mousemove', onMouseMove)
 
   // actual loop, uses request animation frame to run 60fps
   const loop = (state: State) => () => {
@@ -71,13 +71,20 @@ const game = (): void => {
       }
     })
 
-    const click = getQueuedClick()
+    const shootNow = !mouseIsDown && ms.length > 0
 
     const newState = update({
       ...state,
       keys: currentKeys,
-      click,
+      mouse: [...ms],
+      shootNow,
     })
+
+    if (shootNow) {
+      while (ms.length > 0) {
+        ms.pop()
+      }
+    }
 
     context.clearRect(0, 0, W, H)
     draw(context, state)
