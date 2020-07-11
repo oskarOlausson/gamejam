@@ -27,7 +27,7 @@ export type Polygon = {
 
 export type Shape = Circle | Rect | Polygon;
 
-const centre = (shape: Shape): Point => {
+export const centre = (shape: Shape): Point => {
   if (shape.type === "circle") {
     return [shape.x, shape.y];
   } else if (shape.type === "rect") {

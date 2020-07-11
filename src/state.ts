@@ -3,13 +3,17 @@
  */
 
 
-import {W, H} from "./contants";
+import {W, H} from "./constants";
 import {Rect, Shape} from "./gjk";
+
+type Gem = Shape & {
+  seen: boolean
+}
 
 export type State = {
   keys: Set<string>,
   player: Rect,
-  gems: Shape[]
+  gems: Gem[]
 }
 
 export const init = (): State => ({
@@ -24,17 +28,19 @@ export const init = (): State => ({
   gems: [
     {
       type: "circle",
-      x: 30,
-      y: 30, 
-      radius: 30
+      x: W/2,
+      y: 50, 
+      radius: 30,
+      seen: false
     },
     {
       type: "polygon",
       points: [
-        [400, 400], 
-        [410, 420],
-        [300, 403]
-      ]
+        [0, 0], 
+        [40, 20],
+        [0, 20]
+      ].map(([x, y]) => [x + W/2 - 10, y + H - 60]),
+      seen: false
     }
   ]
 });

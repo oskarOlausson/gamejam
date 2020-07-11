@@ -4,7 +4,8 @@
 
 
 import {State} from "./state";
-import {Shape} from "./gjk";
+import {Shape, centre} from "./gjk";
+import {W, H, SEE_RADIUS, BACKGROUND_COLOR} from "./constants";
 
 
 const drawShape = (context: CanvasRenderingContext2D, shape: Shape, style: "fill" | "stroke"): void => {
@@ -29,9 +30,20 @@ const drawShape = (context: CanvasRenderingContext2D, shape: Shape, style: "fill
   }
 }
 
+
+const ground: Shape = {
+  type: "polygon",
+  points: [
+    [W/2, 0], [W, H/2], [W/2, H], [0, H/2]
+  ]
+}
+
 // Screen is cleared before this function is called so this functions only concern is drawing the new state
-export const draw = (context: CanvasRenderingContext2D, state: State): void => {
+export const draw = (context: CanvasRenderingContext2D, fowContext: CanvasRenderingContext2D, state: State): void => {
   context.strokeStyle = "#fff";
+
+  context.fillStyle = "#0f0";
+  drawShape(context, ground, "fill");
 
   context.fillStyle = "#ff0";
   state.gems.forEach((gem) => {
@@ -40,4 +52,32 @@ export const draw = (context: CanvasRenderingContext2D, state: State): void => {
 
   context.fillStyle = "#fff";
   drawShape(context, state.player, "fill");
+
+  fowContext.save();
+  fowContext.fillStyle = BACKGROUND_COLOR;
+  fowContext.fillRect(0, 0, W, H);
+
+  fowContext.fillStyle = "#111";
+  drawShape(fowContext, ground, "fill");
+
+  fowContext.globalCompositeOperation = "destination-out";
+
+  drawShape(fowContext, {
+    type: "circle",
+    x: centre(state.player)[0],
+    y: centre(state.player)[1],
+    radius: SEE_RADIUS
+  }, "fill");
+
+  state.gems.filter((gem) => gem.seen).forEach((gem) => {
+    const [x, y] = centre(gem);
+    drawShape(fowContext, {
+      type: "circle",
+      x,
+      y,
+      radius: SEE_RADIUS
+    }, "fill");
+  })
+
+  fowContext.restore();
 }

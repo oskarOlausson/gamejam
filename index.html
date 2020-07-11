@@ -19,25 +19,23 @@
       }
       canvas {
         margin: auto !important;
-        padding: 2rem !important;
         overflow: hidden !important;
         flex-shrink: 0;
+        position: absolute;
+        left: 0;
+        top: 0;
       }
-      #content {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-      }
-      h1, h2 {
-        text-align: center;
+      #wrapper {
+        position: relative;
+        display: block;
+        margin: 2rem auto 0rem auto;
       }
     </style>
   </head>
   <body>
-    <h1>The game</h1>
-    <h2>WASD to move, R to restart</h2>
-    <div id="content">
+    <div id="wrapper">
       <canvas id="canvas"></canvas>
+      <canvas id="fow"></canvas>
     </div>
     <script src="vendors.app.bundle.js"></script>
     <script src="app.bundle.js"></script>

@@ -7,17 +7,27 @@
 import { init } from "./state";
 import {update} from "./update";
 import {draw} from "./draw";
-import {W, H} from "./contants";
+import {W, H, BACKGROUND_COLOR} from "./constants";
 
-
-const game = (): void => {
-  const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+const prepareCanvas = (id: string): CanvasRenderingContext2D => {
+  const canvas = document.getElementById(id) as HTMLCanvasElement;
   if (!canvas) {
     window.alert("No canvas found");
   }
   canvas.width = W;
   canvas.height = H;
-  const context = canvas.getContext("2d");
+  return canvas.getContext("2d");
+}
+
+
+const game = (): void => {
+  document.body.style.backgroundColor = BACKGROUND_COLOR;
+  const container = document.getElementById("wrapper");
+  container.style.width = W + "px";
+  container.style.height = H + "px";
+
+  const context = prepareCanvas("canvas");
+  const fowContext = prepareCanvas("fow");
   
   // key to timestamp
   const allKeys = new Map<string, boolean>();
@@ -49,13 +59,9 @@ const game = (): void => {
   
     state = update({...state, keys: currentKeys});
 
-    // doing some clean up work to make the draw function more stateless
-    context.fillStyle = "#000";
-    context.strokeStyle = "#000";
-    context.save(),
-    context.fillRect(0, 0, W, H);
-    draw(context, {...state});
-    context.restore();
+    context.clearRect(0, 0, W, H);
+    fowContext.clearRect(0, 0, W, H);
+    draw(context, fowContext, {...state});
 
     window.requestAnimationFrame(loop);
   }
