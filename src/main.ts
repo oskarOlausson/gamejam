@@ -3,7 +3,7 @@
   js events and stuff happens here.
 */
 
-import { init } from './state'
+import { init, State } from './state'
 import { update } from './update'
 import { draw } from './draw'
 import { W, H, BACKGROUND_COLOR } from './constants'
@@ -41,10 +41,8 @@ const game = (): void => {
   window.addEventListener('keydown', onKeyDown)
   window.addEventListener('keyup', onKeyUp)
 
-  let state = init()
-
   // actual loop, uses request animation frame to run 60fps
-  const loop = () => {
+  const loop = (state: State) => () => {
     const currentKeys = new Set<string>()
     allKeys.forEach((isDown, key) => {
       if (isDown) {
@@ -52,16 +50,18 @@ const game = (): void => {
       }
     })
 
-    state = update({ ...state, keys: currentKeys })
+    const newState = update({ ...state, keys: currentKeys })
 
     context.clearRect(0, 0, W, H)
     fowContext.clearRect(0, 0, W, H)
     draw(context, fowContext, state)
 
-    window.requestAnimationFrame(loop)
+    window.requestAnimationFrame(
+      loop({ ...newState, frame: newState.frame + 1 }),
+    )
   }
 
-  window.requestAnimationFrame(loop)
+  window.requestAnimationFrame(loop(init()))
 }
 
 game()
