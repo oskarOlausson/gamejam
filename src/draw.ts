@@ -3,7 +3,7 @@
  */
 
 import { State } from './state'
-import { Shape, centre } from './gjk'
+import { Shape, centre, borders } from './gjk'
 import { W, H, SEE_RADIUS, BACKGROUND_COLOR } from './constants'
 import { calculateSightRadius } from './tower'
 
@@ -53,36 +53,24 @@ const ground: Shape = {
 }
 
 // Screen is cleared before this function is called so this functions only concern is drawing the new state
-export const draw = (
-  context: CanvasRenderingContext2D,
-  fowContext: CanvasRenderingContext2D,
-  state: State,
-): void => {
+export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   context.strokeStyle = '#fff'
 
-  context.fillStyle = '#0f0'
+  context.fillStyle = '#7FD8BE'
   drawShape(context, ground, 'fill')
 
-  context.fillStyle = '#FFF'
+  state.towers
+    .sort((a, b) => a.birthFrame - b.birthFrame)
+    .forEach((tower) => {
+      context.fillStyle = tower.p1 ? '#FCAB64' : '#3083DC'
+      drawShape(context, calculateSightRadius(state.frame, tower), 'fill')
+    })
+
   state.towers.forEach((tower) => {
+    context.fillStyle = tower.p1 ? '#FFF' : '#404'
     drawShape(context, tower, 'fill')
   })
 
-  fowContext.save()
-  fowContext.fillStyle = BACKGROUND_COLOR
-  fowContext.fillRect(0, 0, W, H)
-
-  fowContext.fillStyle = '#111'
-  drawShape(fowContext, ground, 'fill')
-
-  fowContext.globalCompositeOperation = 'destination-out'
-
-  // Draw line of sight's for towers
-
-  state.towers.forEach((tower) => {
-    const sightRadiusCircle = calculateSightRadius(state.frame, tower)
-    drawShape(fowContext, sightRadiusCircle, 'fill')
-  })
-
-  fowContext.restore()
+  context.fillStyle = BACKGROUND_COLOR
+  borders.forEach((b) => drawShape(context, b, 'fill'))
 }

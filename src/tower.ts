@@ -3,14 +3,21 @@ import { Shape, Circle } from './gjk'
 
 export type Tower = Circle & {
   birthFrame: number
+  p1: boolean
 }
 
-export const tower = (x: number, y: number, birthFrame: number): Tower => ({
+export const tower = (
+  x: number,
+  y: number,
+  birthFrame: number,
+  p1: boolean,
+): Tower => ({
   type: 'circle',
   x,
   y,
   birthFrame,
   radius: 5,
+  p1,
 })
 
 export const calculateSightRadius = (

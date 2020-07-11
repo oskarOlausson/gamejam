@@ -38,7 +38,6 @@ const game = (): void => {
   }
 
   const context = prepareCanvas('canvas')
-  const fowContext = prepareCanvas('fow')
 
   // key to timestamp
   const allKeys = new Map<string, boolean>()
@@ -81,8 +80,7 @@ const game = (): void => {
     })
 
     context.clearRect(0, 0, W, H)
-    fowContext.clearRect(0, 0, W, H)
-    draw(context, fowContext, state)
+    draw(context, state)
 
     window.requestAnimationFrame(
       loop({ ...newState, frame: newState.frame + 1 }),

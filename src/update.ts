@@ -33,9 +33,19 @@ const handleClick = (state: State): Partial<State> => {
         }),
       )
 
-    if (clickIsWithinSight(state.click, state.towers)) {
-      const newTower = tower(state.click[0], state.click[1], state.frame)
-      return { towers: [...state.towers, newTower] }
+    if (
+      clickIsWithinSight(
+        state.click,
+        state.towers.filter((t) => t.p1 === state.p1),
+      )
+    ) {
+      const newTower = tower(
+        state.click[0],
+        state.click[1],
+        state.frame,
+        state.p1,
+      )
+      return { towers: [...state.towers, newTower], p1: !state.p1 }
     }
   }
   return {}
