@@ -45,6 +45,7 @@ export const centre = (shape: Shape): Point => {
 
     return [sx / shape.points.length, sy / shape.points.length]
   }
+  throw new Error(`unknown shape type: ${shape}`)
 }
 
 export const support = (shape: Shape, [dx, dy]: Point): Point => {
@@ -81,6 +82,7 @@ export const support = (shape: Shape, [dx, dy]: Point): Point => {
 
     return maxItem
   }
+  throw new Error(`Unknown shape type: ${shape}`)
 }
 
 const diff = (p1: Point, p2: Point): Point => {

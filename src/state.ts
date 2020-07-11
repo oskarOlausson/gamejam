@@ -16,6 +16,7 @@ export type State = {
   gems: Gem[]
   towers: Array<Tower>
   frame: number
+  click: [number, number] | null
 }
 
 export const init = (): State => ({
@@ -47,4 +48,5 @@ export const init = (): State => ({
   ],
   towers: [],
   frame: 0,
+  click: null,
 })
