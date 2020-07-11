@@ -79,12 +79,8 @@ export const draw = (
   // Draw line of sight's for towers
 
   state.towers.forEach((tower) => {
-    const radius = calculateSightRadius(state.frame, tower)
-    drawShape(
-      fowContext,
-      { type: 'circle', x: tower.x, y: tower.y, radius },
-      'fill',
-    )
+    const sightRadiusCircle = calculateSightRadius(state.frame, tower)
+    drawShape(fowContext, sightRadiusCircle, 'fill')
   })
 
   fowContext.restore()

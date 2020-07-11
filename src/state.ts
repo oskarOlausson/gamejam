@@ -4,7 +4,7 @@
 
 import { W, H } from './constants'
 import { Rect, Shape } from './gjk'
-import { Tower } from './tower'
+import { Tower, tower } from './tower'
 
 type Gem = Shape & {
   seen: boolean
@@ -19,7 +19,7 @@ export type State = {
 
 export const init = (): State => ({
   keys: new Set(),
-  towers: [],
+  towers: [tower(W / 2, 50, 0)],
   frame: 0,
   click: null
 })
