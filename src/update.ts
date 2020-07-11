@@ -5,6 +5,7 @@
 import { State, init } from './state'
 import { overlaps, Rect, centre, Circle, Polygon } from './gjk'
 import { W, H, SEE_RADIUS } from './constants'
+import { tower } from './tower'
 
 const atPos = (shape: Rect, x: number, y: number): Rect => ({ ...shape, x, y })
 
@@ -35,11 +36,22 @@ export const update = (state: State): State => {
     radius: SEE_RADIUS,
   }
 
-  return {
+  const newState = {
     ...state,
     player: updatePlayer(state.player, dx, dy),
     gems: state.gems
       .filter((gem) => !overlaps(gem, state.player))
       .map((gem) => ({ ...gem, seen: gem.seen || overlaps(gem, playerSees) })),
+  }
+
+  return { ...newState, ...handleClick(newState) }
+}
+
+const handleClick = (state: State): Partial<State> => {
+  if (state.click) {
+    const newTower = tower(state.click[0], state.click[1], state.frame)
+    return { towers: [...state.towers, newTower] }
+  } else {
+    return {}
   }
 }

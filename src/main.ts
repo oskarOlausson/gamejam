@@ -7,6 +7,7 @@ import { init, State } from './state'
 import { update } from './update'
 import { draw } from './draw'
 import { W, H, BACKGROUND_COLOR } from './constants'
+import { getMousePositionInElement } from './utils'
 
 const prepareCanvas = (id: string): CanvasRenderingContext2D => {
   const canvas = document.getElementById(id) as HTMLCanvasElement
@@ -51,7 +52,11 @@ const game = (): void => {
   }
 
   function onClick(this: Window, event: MouseEvent) {
-    queuedClick = [event.x, event.y]
+    const canvas = document.querySelector('#canvas')
+    if (!canvas) {
+      throw new Error(`Couldn't find canvas element.`)
+    }
+    queuedClick = getMousePositionInElement(canvas, event)
   }
 
   window.addEventListener('keydown', onKeyDown)

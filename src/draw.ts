@@ -5,6 +5,7 @@
 import { State } from './state'
 import { Shape, centre } from './gjk'
 import { W, H, SEE_RADIUS, BACKGROUND_COLOR } from './constants'
+import { Tower, calculateSightRadius } from './tower'
 
 const drawShape = (
   context: CanvasRenderingContext2D,
@@ -70,6 +71,10 @@ export const draw = (
   context.fillStyle = '#fff'
   drawShape(context, state.player, 'fill')
 
+  state.towers.forEach((tower) => {
+    drawShape(context, tower, 'fill')
+  })
+
   fowContext.save()
   fowContext.fillStyle = BACKGROUND_COLOR
   fowContext.fillRect(0, 0, W, H)
@@ -78,6 +83,17 @@ export const draw = (
   drawShape(fowContext, ground, 'fill')
 
   fowContext.globalCompositeOperation = 'destination-out'
+
+  // Draw line of sight's for towers
+
+  state.towers.forEach((tower) => {
+    const radius = calculateSightRadius(state.frame, tower)
+    drawShape(
+      fowContext,
+      { type: 'circle', x: tower.x, y: tower.y, radius },
+      'fill',
+    )
+  })
 
   drawShape(
     fowContext,
