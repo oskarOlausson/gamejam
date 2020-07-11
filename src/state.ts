@@ -3,7 +3,8 @@
  */
 
 import { W, H } from './constants'
-import { Shape, Circle } from './gjk'
+import { Rect, Shape } from './gjk'
+import { Tower } from './tower'
 
 type Gem = Shape & {
   seen: boolean
@@ -11,17 +12,14 @@ type Gem = Shape & {
 
 export type State = {
   keys: Set<string>
-  player: Circle,
-  gems: Gem[]
+  towers: Array<Tower>
+  frame: number
+  click: [number, number] | null
 }
 
 export const init = (): State => ({
   keys: new Set(),
-  player: {
-    type: 'circle',
-    x: W / 2,
-    y: H / 2,
-    radius: 20,
-  },
-  gems: [],
+  towers: [],
+  frame: 0,
+  click: null
 })

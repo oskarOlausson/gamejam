@@ -5,16 +5,7 @@
 import { State, init } from './state'
 import { overlaps, Rect, centre, Circle, Polygon, shapeInBoard } from './gjk'
 import { W, H, SEE_RADIUS } from './constants'
-
-const atPos = (shape: Circle, x: number, y: number): Circle => ({ ...shape, x, y })
-
-const updatePlayer = (player: Circle, dx: number, dy: number): Circle => {
-  const playerDx = atPos(player, player.x + dx, player.y)
-  const playerDy = atPos(player, player.x, player.y + dy)
-  const playerDelta = atPos(player, player.x + dx, player.y + dy)
-
-  return [playerDelta, playerDx, playerDy].find((p) => shapeInBoard(p)) || player
-}
+import { tower } from './tower'
 
 export const update = (state: State): State => {
   const speed = 5
@@ -28,18 +19,18 @@ export const update = (state: State): State => {
     return init()
   }
 
-  const playerSees: Circle = {
-    type: 'circle',
-    x: state.player.x,
-    y: state.player.y,
-    radius: SEE_RADIUS,
+  const newState = {
+    ...state
   }
 
-  return {
-    ...state,
-    player: updatePlayer(state.player, dx, dy),
-    gems: state.gems
-      .filter((gem) => !overlaps(gem, state.player))
-      .map((gem) => ({ ...gem, seen: gem.seen || overlaps(gem, playerSees) })),
+  return { ...newState, ...handleClick(newState) }
+}
+
+const handleClick = (state: State): Partial<State> => {
+  if (state.click) {
+    const newTower = tower(state.click[0], state.click[1], state.frame)
+    return { towers: [...state.towers, newTower] }
+  } else {
+    return {}
   }
 }

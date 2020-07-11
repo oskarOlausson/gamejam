@@ -3,8 +3,9 @@
  */
 
 import { State } from './state'
-import { Shape, centre, support, borders, diff } from './gjk'
+import { Shape, centre } from './gjk'
 import { W, H, SEE_RADIUS, BACKGROUND_COLOR } from './constants'
+import { calculateSightRadius } from './tower'
 
 const drawShape = (
   context: CanvasRenderingContext2D,
@@ -41,14 +42,6 @@ const drawShape = (
   }
 }
 
-const drawPoint = (context: CanvasRenderingContext2D, [x, y]: [number, number]): void => {
-  context.save()
-  context.fillStyle = "#0ff"
-  context.fillRect(x-2, y-2, 4, 4)
-  context.restore()
-}
-
-
 const ground: Shape = {
   type: 'polygon',
   points: [
@@ -70,18 +63,9 @@ export const draw = (
   context.fillStyle = '#0f0'
   drawShape(context, ground, 'fill')
 
-  context.fillStyle = '#ff0'
-  state.gems.forEach((gem) => {
-    drawShape(context, gem, 'fill')
+  state.towers.forEach((tower) => {
+    drawShape(context, tower, 'fill')
   })
-
-  context.fillStyle = '#fff'
-  drawShape(context, state.player, 'fill')
-
-  drawPoint(context, support(state.player, [-1, -1]))
-  drawPoint(context, support(state.player, [1, -1]))
-  drawPoint(context, support(state.player, [-1, 1]))
-  drawPoint(context, support(state.player, [1, 1]))
 
   fowContext.save()
   fowContext.fillStyle = BACKGROUND_COLOR
@@ -92,32 +76,16 @@ export const draw = (
 
   fowContext.globalCompositeOperation = 'destination-out'
 
-  drawShape(
-    fowContext,
-    {
-      type: 'circle',
-      x: centre(state.player)[0],
-      y: centre(state.player)[1],
-      radius: SEE_RADIUS,
-    },
-    'fill',
-  )
+  // Draw line of sight's for towers
 
-  state.gems
-    .filter((gem) => gem.seen)
-    .forEach((gem) => {
-      const [x, y] = centre(gem)
-      drawShape(
-        fowContext,
-        {
-          type: 'circle',
-          x,
-          y,
-          radius: SEE_RADIUS,
-        },
-        'fill',
-      )
-    })
+  state.towers.forEach((tower) => {
+    const radius = calculateSightRadius(state.frame, tower)
+    drawShape(
+      fowContext,
+      { type: 'circle', x: tower.x, y: tower.y, radius },
+      'fill',
+    )
+  })
 
   fowContext.restore()
 }

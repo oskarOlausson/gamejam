@@ -2,7 +2,9 @@
   "compilerOptions": {
     "lib": ["ES2020", "DOM"],
     "target": "es5",
-    "sourceMap": true
+    "sourceMap": true,
+    "strict": true,
+    "noEmit": true
   },
   "include": [
     "**/*.ts"
