@@ -3,7 +3,7 @@
  */
 
 import { State } from './state'
-import { Shape, centre } from './gjk'
+import { Shape, centre, support, borders, diff } from './gjk'
 import { W, H, SEE_RADIUS, BACKGROUND_COLOR } from './constants'
 
 const drawShape = (
@@ -41,6 +41,14 @@ const drawShape = (
   }
 }
 
+const drawPoint = (context: CanvasRenderingContext2D, [x, y]: [number, number]): void => {
+  context.save()
+  context.fillStyle = "#0ff"
+  context.fillRect(x-2, y-2, 4, 4)
+  context.restore()
+}
+
+
 const ground: Shape = {
   type: 'polygon',
   points: [
@@ -69,6 +77,11 @@ export const draw = (
 
   context.fillStyle = '#fff'
   drawShape(context, state.player, 'fill')
+
+  drawPoint(context, support(state.player, [-1, -1]))
+  drawPoint(context, support(state.player, [1, -1]))
+  drawPoint(context, support(state.player, [-1, 1]))
+  drawPoint(context, support(state.player, [1, 1]))
 
   fowContext.save()
   fowContext.fillStyle = BACKGROUND_COLOR

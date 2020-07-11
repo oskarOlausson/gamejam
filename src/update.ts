@@ -3,17 +3,17 @@
  */
 
 import { State, init } from './state'
-import { overlaps, Rect, centre, Circle, Polygon, shapeOnBoard } from './gjk'
+import { overlaps, Rect, centre, Circle, Polygon, shapeInBoard } from './gjk'
 import { W, H, SEE_RADIUS } from './constants'
 
-const atPos = (shape: Rect, x: number, y: number): Rect => ({ ...shape, x, y })
+const atPos = (shape: Circle, x: number, y: number): Circle => ({ ...shape, x, y })
 
-const updatePlayer = (player: Rect, dx: number, dy: number): Rect => {
+const updatePlayer = (player: Circle, dx: number, dy: number): Circle => {
   const playerDx = atPos(player, player.x + dx, player.y)
   const playerDy = atPos(player, player.x, player.y + dy)
   const playerDelta = atPos(player, player.x + dx, player.y + dy)
 
-  return [playerDelta, playerDx, playerDy].find((p) => shapeOnBoard(p)) || player
+  return [playerDelta, playerDx, playerDy].find((p) => shapeInBoard(p)) || player
 }
 
 export const update = (state: State): State => {

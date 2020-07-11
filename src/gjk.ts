@@ -46,11 +46,6 @@ export const borders: Shape[] = [
   },
 ]
 
-
-export const shapeOnBoard = (shape: Shape): boolean =>
-  borders.find((b) => overlaps(b, shape)) === undefined
-  
-
 export const centre = (shape: Shape): Point => {
   if (shape.type === 'circle') {
     return [shape.x, shape.y]
@@ -92,22 +87,15 @@ export const support = (shape: Shape, [dx, dy]: Point): Point => {
   } else if (shape.type === 'polygon') {
     const d: Point = [dx, dy]
 
-    let max = dot(shape.points[0], d)
-    let maxItem = shape.points[0]
+    const sorted = shape.points
+      .map((point): [Point, number] => [point, dot(point, d)])
+      .sort((a, b) => b[1] - a[1])
 
-    for (let i = 1; i < shape.points.length; i++) {
-      const product = dot(shape.points[i], d)
-      if (product > max) {
-        max = product
-        maxItem = shape.points[i]
-      }
-    }
-
-    return maxItem
+    return sorted[0][0]
   }
 }
 
-const diff = (p1: Point, p2: Point): Point => {
+export const diff = (p1: Point, p2: Point): Point => {
   return [p1[0] - p2[0], p1[1] - p2[1]]
 }
 
@@ -232,3 +220,11 @@ export const overlaps = (shapeA: Shape, shapeB: Shape): boolean => {
 
   return result
 }
+
+export const shapeInBoard = (shape: Shape) => 
+  pointInBoard(support(shape, [-1, -1])) &&
+  pointInBoard(support(shape, [1, -1])) &&
+  pointInBoard(support(shape, [-1, 1])) &&
+  pointInBoard(support(shape, [1, 1]))
+
+const pointInBoard = ([x, y]: Point): boolean => (Math.abs(y - H/2) < Math.min(x, W-x))
