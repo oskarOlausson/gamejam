@@ -17,9 +17,12 @@ export const calculateSightRadius = (
   framesElapsed: number,
   tower: Tower,
 ): Shape => {
-  const FRAMES_UNTIL_FULL_GROWN = 60 * 10
+  const FRAMES_UNTIL_FULL_GROWN = 60 * 12
   const lifeSpan = framesElapsed - tower.birthFrame
-  const radiusPercentage = Math.min(1, lifeSpan / FRAMES_UNTIL_FULL_GROWN)
+  const radiusPercentage = Math.min(
+    Math.pow(lifeSpan / FRAMES_UNTIL_FULL_GROWN, 0.4),
+    1,
+  )
   const { x, y } = tower
   return { type: 'circle', x, y, radius: radiusPercentage * SEE_RADIUS }
 }
