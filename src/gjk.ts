@@ -1,9 +1,11 @@
 /*
   Colllision system for convex polygons
 */
+import {W, H} from "./constants"
 
 type Point = [number, number]
 type Point3d = [number, number, number]
+export type Shape = Circle | Rect | Polygon
 
 export type Rect = {
   type: 'rect'
@@ -25,7 +27,29 @@ export type Polygon = {
   points: Point[]
 }
 
-export type Shape = Circle | Rect | Polygon
+export const borders: Shape[] = [
+  {
+    type: "polygon",
+    points: [[0, 0], [W/2, 0], [0, H/2]]
+  },
+  {
+    type: "polygon",
+    points: [[W/2, 0], [W, 0], [W, H/2]]
+  },
+  {
+    type: "polygon",
+    points: [[W, H/2], [W, H], [W/2, H]]
+  },
+  {
+    type: "polygon",
+    points: [[W/2, H], [0, H], [0, H/2]]
+  },
+]
+
+
+export const shapeOnBoard = (shape: Shape): boolean =>
+  borders.find((b) => overlaps(b, shape)) === undefined
+  
 
 export const centre = (shape: Shape): Point => {
   if (shape.type === 'circle') {
