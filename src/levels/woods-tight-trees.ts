@@ -17,6 +17,8 @@ export const theWoodsTightTrees: Level = {
       center: [x.center[0] + 180, x.center[1]] as [number, number],
     })),
   ],
+  nrShots: 0,
+  par: 3,
   wind: createWindState(
     [Math.random() * 2 - 1, Math.random() * 2 - 1],
     [Math.random() * 2 - 1, Math.random() * 2 - 1],
