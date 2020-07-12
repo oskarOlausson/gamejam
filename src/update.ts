@@ -14,9 +14,10 @@ import {
   Vec2,
   magnitude,
   overlap,
+  outsideBounds,
 } from './gjk'
 import { WindState, createWindState } from './wind'
-import { WIND_MAX_FRAMES } from './constants'
+import { WIND_MAX_FRAMES, H, W } from './constants'
 import { easing } from 'ts-easing'
 import { minInList } from './utils'
 
@@ -24,6 +25,53 @@ export const travelPosition = (
   disc: Disc,
   frame: number,
 ): [number, number] | undefined => disc.travel[frame - disc.travelStart]
+
+const newPathGivenReflection = (
+  state: State,
+  remainingPath: Vec2[],
+  [cx, cy]: Vec2,
+  velocity: Vec2,
+  reflection: Vec2,
+  bounceFactor: number,
+  filterFn: (v: Vec2, i: number) => boolean = () => true,
+): Disc => {
+  const angleDiff =
+    Math.atan2(reflection[1], reflection[0]) -
+    Math.atan2(velocity[1], velocity[0])
+
+  const filtered: Vec2[] = remainingPath
+    .map(([x, y]): Vec2 => [x - cx, y - cy])
+    .filter((p): p is Vec2 => p[0] !== 0 || p[1] !== 0)
+
+  const newPath = filtered
+    .map(
+      ([x, y]): Vec2 => {
+        const newAngle = Math.atan2(y, x) + angleDiff
+        const length = magnitude([x, y])
+
+        return [
+          cx + Math.cos(newAngle) * length * bounceFactor,
+          cy + Math.sin(newAngle) * length * bounceFactor,
+        ]
+      },
+    )
+    .filter(filterFn)
+
+  if (newPath.length === 0) {
+    return {
+      ...state.level.disc,
+      center: [cx, cy],
+      travel: [],
+    }
+  }
+
+  return {
+    ...state.level.disc,
+    center: newPath[0],
+    travel: newPath.slice(1),
+    travelStart: state.frame,
+  }
+}
 
 export const calculateDiscPosition = (state: State): Disc => {
   const disc = state.level.disc
@@ -48,6 +96,17 @@ export const calculateDiscPosition = (state: State): Disc => {
   )
   const combinedRadius = tree.radius + disc.radius
 
+  const remainingPath = disc.travel.filter(
+    (p, i) => state.frame - disc.travelStart <= i,
+  )
+
+  if (remainingPath.length === 0) {
+    return {
+      ...disc,
+      travel: [],
+    }
+  }
+
   if (
     pointLineDistance(tree.center, disc.center, newPosition) < combinedRadius
   ) {
@@ -57,56 +116,26 @@ export const calculateDiscPosition = (state: State): Disc => {
     )
     const [cx, cy] = add(tree.center, offset)
 
-    const remainingPath = disc.travel.filter(
-      (p, i) => state.frame - disc.travelStart <= i,
-    )
-
-    if (remainingPath.length === 0) {
-      return {
-        ...disc,
-        travel: [],
-      }
-    }
-
     const velocity = aToB(state.level.disc.center, newPosition)
     const reflection = getReflection(state.level.disc.center, newPosition, tree)
 
-    const angleDiff =
-      Math.atan2(reflection[1], reflection[0]) -
-      Math.atan2(velocity[1], velocity[0])
+    return newPathGivenReflection(
+      state,
+      remainingPath,
+      [cx, cy],
+      velocity,
+      reflection,
+      0.5,
+      (p, i) => magnitude(aToB(tree.center, p)) > combinedRadius && i % 2 === 0,
+    )
+  }
 
-    const filtered: Vec2[] = remainingPath
-      .map(([x, y]): Vec2 => [x - cx, y - cy])
-      .filter((p): p is Vec2 => p[0] !== 0 || p[1] !== 0)
-
-    const newPath = filtered
-      .map(
-        ([x, y]): Vec2 => {
-          const newAngle = Math.atan2(y, x) + angleDiff
-          const length = magnitude([x, y])
-
-          return [
-            cx + Math.cos(newAngle) * length * 0.5,
-            cy + Math.sin(newAngle) * length * 0.5,
-          ]
-        },
-      )
-      .filter((p) => magnitude(aToB(tree.center, p)) > combinedRadius)
-      .filter((p, i) => i % 2 === 0)
-
-    if (newPath.length === 0) {
-      return {
-        ...disc,
-        center: [cx, cy],
-        travel: [],
-      }
-    }
-
+  if (outsideBounds(state.level.disc)) {
     return {
-      ...disc,
-      center: newPath[0],
-      travel: newPath.slice(1),
-      travelStart: state.frame,
+      ...state.level.disc,
+      wind: [],
+      travel: [],
+      center: state.level.disc.lastShot,
     }
   }
 
@@ -169,6 +198,7 @@ const updateFlyingDisc = (state: State): Partial<State> => {
           wind: [],
           travel,
           travelStart: state.frame,
+          lastShot: state.level.disc.center,
         },
         nrShots: state.level.nrShots + 1,
       },

@@ -29,6 +29,7 @@ export const theWoodsTwoElectricBogaloo: Level = {
     travel: [],
     travelStart: 0,
     radius: 20,
+    lastShot: [W / 2, H - 50],
   },
   nrShots: 1,
   par: 3,
