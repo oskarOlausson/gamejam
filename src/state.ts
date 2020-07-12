@@ -12,45 +12,51 @@ export type Disc = Circle & {
   travelStart: number
 }
 
+export type Level = {
+  disc: Disc
+  basket: Basket
+  wind: WindState
+  trees: Circle[]
+  youHaveWon: boolean
+}
+
 export type State = {
   keys: Set<string>
   frame: number
   mouse: Vec2[]
-  disc: Disc
   shootNow: boolean
-  trees: Circle[]
   shot: Vec2[]
-  wind: WindState
-  basket: Basket
-  youHaveWon: boolean
+  level: Level
 }
 
 export const init = (): State => ({
   keys: new Set(),
   frame: 0,
   mouse: [],
-  disc: {
-    center: [W / 2, H - 50],
-    travel: [],
-    travelStart: 0,
-    radius: 20,
+  level: {
+    trees: [
+      {
+        center: [W / 2, H / 2],
+        radius: 20,
+      },
+    ],
+    wind: createWindState(
+      [Math.random() * 2 - 1, Math.random() * 2 - 1],
+      [Math.random() * 2 - 1, Math.random() * 2 - 1],
+      0,
+    ),
+    basket: {
+      center: [W / 2, 0 + 50],
+      radius: 30,
+    },
+    youHaveWon: false,
+    disc: {
+      center: [W / 2, H - 50],
+      travel: [],
+      travelStart: 0,
+      radius: 20,
+    },
   },
   shootNow: false,
   shot: [],
-  trees: [
-    {
-      center: [W / 2, H / 2],
-      radius: 20,
-    },
-  ],
-  wind: createWindState(
-    [Math.random() * 2 - 1, Math.random() * 2 - 1],
-    [Math.random() * 2 - 1, Math.random() * 2 - 1],
-    0,
-  ),
-  basket: {
-    center: [W / 2, 0 + 50],
-    radius: 30,
-  },
-  youHaveWon: false,
 })
