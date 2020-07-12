@@ -27,8 +27,8 @@ const travelPosition = (
 ): [number, number] | undefined => disc.travel[frame - disc.travelStart]
 
 export const calculateDiscPosition = (state: State): Disc => {
-  const disc = state.disc
-  const nextTravelFrame = travelPosition(state.disc, state.frame)
+  const disc = state.level.disc
+  const nextTravelFrame = travelPosition(state.level.disc, state.frame)
 
   if (!nextTravelFrame) {
     return disc
@@ -37,11 +37,14 @@ export const calculateDiscPosition = (state: State): Disc => {
   const lastWVector: Vec2 =
     disc.wind.length > 0 ? disc.wind[disc.wind.length - 1] : [0, 0]
 
-  const wVector = calculateWindVector(state.wind, state.frame)
+  const wVector = add(
+    lastWVector,
+    calculateWindVector(state.level.wind, state.frame),
+  )
 
   const newPosition = add(nextTravelFrame, wVector)
 
-  const tree = minInList(state.trees, (tree) =>
+  const tree = minInList(state.level.trees, (tree) =>
     pointLineDistance(tree.center, disc.center, newPosition),
   )
   const combinedRadius = tree.radius + disc.radius
@@ -66,8 +69,8 @@ export const calculateDiscPosition = (state: State): Disc => {
       }
     }
 
-    const velocity = aToB(state.disc.center, newPosition)
-    const reflection = getReflection(state.disc.center, newPosition, tree)
+    const velocity = aToB(state.level.disc.center, newPosition)
+    const reflection = getReflection(state.level.disc.center, newPosition, tree)
 
     const angleDiff =
       Math.atan2(reflection[1], reflection[0]) -
@@ -111,7 +114,7 @@ export const calculateDiscPosition = (state: State): Disc => {
   return {
     ...disc,
     center: newPosition,
-    wind: [...disc.wind, add(wVector, lastWVector)],
+    wind: [...disc.wind, wVector],
   }
 }
 
@@ -127,36 +130,45 @@ export const calculateWindVector = (wind: WindState, frame: number): Vec2 => {
 }
 
 export const updateWind = (state: State): Partial<State> => {
-  const { wind, frame } = state
+  const {
+    level: { wind },
+    frame,
+  } = state
   if (frame - wind.startFrame > WIND_MAX_FRAMES) {
     return {
-      wind: createWindState(
-        wind.endVector,
-        [Math.random() * 2 - 1, Math.random() * 2 - 1],
-        frame,
-      ),
+      level: {
+        ...state.level,
+        wind: createWindState(
+          wind.endVector,
+          [Math.random() * 2 - 1, Math.random() * 2 - 1],
+          frame,
+        ),
+      },
     }
   }
   return {}
 }
 
 const updateFlyingDisc = (state: State): Partial<State> => {
-  if (!travelPosition(state.disc, state.frame) && state.keys.has('d')) {
+  if (!travelPosition(state.level.disc, state.frame) && state.keys.has('d')) {
     const m: Vec2 = [W / 2 + 15, H / 2]
     const e: Vec2 = [W / 2 + 30, 0]
 
     return {
       shot: [m, e],
-      disc: {
-        ...state.disc,
-        travel: getTravel(state.disc.center, m, e),
-        travelStart: state.frame,
-        wind: [],
+      level: {
+        ...state.level,
+        disc: {
+          ...state.level.disc,
+          travel: getTravel(state.level.disc.center, m, e),
+          travelStart: state.frame,
+          wind: [],
+        },
       },
     }
   }
 
-  if (!travelPosition(state.disc, state.frame) && state.shootNow) {
+  if (!travelPosition(state.level.disc, state.frame) && state.shootNow) {
     const [m, e] = getShot(state.mouse)
 
     if (e[0] === 0 && e[1] === 0) {
@@ -165,26 +177,35 @@ const updateFlyingDisc = (state: State): Partial<State> => {
 
     return {
       shot: [m, e],
-      disc: {
-        ...state.disc,
-        wind: [],
-        travel: getTravel(state.disc.center, m, e),
-        travelStart: state.frame,
+      level: {
+        ...state.level,
+        disc: {
+          ...state.level.disc,
+          wind: [],
+          travel: getTravel(state.level.disc.center, m, e),
+          travelStart: state.frame,
+        },
       },
     }
   }
 
   return {
-    disc: calculateDiscPosition(state),
+    level: {
+      ...state.level,
+      disc: calculateDiscPosition(state),
+    },
   }
 }
 
 const checkWinCondition = (state: State): Partial<State> => {
-  const overlaps = overlap(state.basket, state.disc)
+  const overlaps = overlap(state.level.basket, state.level.disc)
   if (overlaps) {
     return {
-      disc: { ...state.disc, travel: [] },
-      youHaveWon: true,
+      level: {
+        ...state.level,
+        disc: { ...state.level.disc, travel: [] },
+        youHaveWon: true,
+      },
     }
   }
   return {}

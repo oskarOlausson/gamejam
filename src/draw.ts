@@ -131,15 +131,15 @@ const drawWinCondition = (ctx: CanvasRenderingContext2D) => {
 export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   drawBackground(context)
 
-  drawTopBasket(context, state.basket)
-  drawDisc(context, state.disc)
-  drawBottomBasket(context, state.basket)
-  drawWindIndicator(context, state.wind, state.frame)
+  drawTopBasket(context, state.level.basket)
+  drawDisc(context, state.level.disc)
+  drawBottomBasket(context, state.level.basket)
+  drawWindIndicator(context, state.level.wind, state.frame)
 
-  if (state.youHaveWon) drawWinCondition(context)
+  if (state.level.youHaveWon) drawWinCondition(context)
 
   context.fillStyle = '#182'
-  state.trees.forEach((t) => {
+  state.level.trees.forEach((t) => {
     drawShape(context, t, 'fill')
   })
 }
