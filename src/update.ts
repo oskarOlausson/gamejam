@@ -224,7 +224,10 @@ export const update = (state: State): State => {
       if (!level) {
         return state
       }
-      return { ...state, currentLevel: state.currentLevel + 1 }
+      return {
+        ...state,
+        currentLevel: Math.min(state.currentLevel + 1, state.levels.length - 1),
+      }
     }
   }
   return [checkWinCondition, updateWind, updateFlyingDisc].reduce(
