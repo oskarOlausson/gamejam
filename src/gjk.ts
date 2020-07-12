@@ -74,16 +74,16 @@ export const pointLineDistance = (p: Vec2, v: Vec2, w: Vec2): number =>
   magnitude(aToB(p, closestPointToLine(p, v, w)))
 
 export const outsideBounds = (circle: Circle): boolean => {
-  if (circle.center[0] - circle.radius < 0) {
+  if (circle.center[0] < 0) {
     return true
   }
-  if (circle.center[0] + circle.radius > W) {
+  if (circle.center[0] > W) {
     return true
   }
-  if (circle.center[1] - circle.radius < 0) {
+  if (circle.center[1] < 0) {
     return true
   }
-  if (circle.center[1] + circle.radius > H) {
+  if (circle.center[1] > H) {
     return true
   }
 
