@@ -31,6 +31,6 @@ export const theWoods: Level = {
     radius: 20,
     lastShot: [W / 2, H - 50],
   },
-  nrShots: 1,
+  nrShots: 0,
   par: 3,
 }

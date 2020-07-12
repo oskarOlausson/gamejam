@@ -143,6 +143,17 @@ const drawBottomBasket = (
   ctx.restore()
 }
 
+const drawNbrShots = (ctx: CanvasRenderingContext2D, shots: number) => {
+  ctx.save()
+
+  ctx.textAlign = 'center'
+  ctx.font = '18px Comic Sans MS'
+  ctx.fillStyle = '#FFC0CB'
+  ctx.fillText(`Shots: ${shots}`, 40, 30)
+
+  ctx.restore()
+}
+
 const drawMenu = (
   context: CanvasRenderingContext2D,
   state: State,
@@ -305,6 +316,8 @@ export const draw = (context: CanvasRenderingContext2D, state: State): void => {
     context.translate(Math.random() * 5, Math.random() * 5)
   }
   drawBackground(context)
+
+  drawNbrShots(context, level.nrShots)
 
   drawTopBasket(context, level.basket)
   drawShot(

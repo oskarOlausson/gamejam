@@ -4,7 +4,7 @@ import { W, H } from '../constants'
 
 export const longShot: Level = {
   trees: [
-    { center: [30, 30], radius: 20 },
+    { center: [60, 60], radius: 20 },
     { center: [W - 30, H - 30], radius: 20 },
   ],
   nrShots: 0,
