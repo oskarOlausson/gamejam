@@ -18,7 +18,7 @@ import {
 import { WindState, createWindState } from './wind'
 import { WIND_MAX_FRAMES } from './constants'
 import { easing } from 'ts-easing'
-import { minInList } from './utils'
+import { minInList, replaceAtIndex } from './utils'
 
 export const travelPosition = (
   disc: Disc,
@@ -26,8 +26,9 @@ export const travelPosition = (
 ): [number, number] | undefined => disc.travel[frame - disc.travelStart]
 
 export const calculateDiscPosition = (state: State): Disc => {
-  const disc = state.level.disc
-  const nextTravelFrame = travelPosition(state.level.disc, state.frame)
+  const level = state.levels[state.currentLevel]
+  const disc = level.disc
+  const nextTravelFrame = travelPosition(level.disc, state.frame)
 
   if (!nextTravelFrame) {
     return disc
@@ -36,14 +37,11 @@ export const calculateDiscPosition = (state: State): Disc => {
   const lastWVector: Vec2 =
     disc.wind.length > 0 ? disc.wind[disc.wind.length - 1] : [0, 0]
 
-  const wVector = add(
-    lastWVector,
-    calculateWindVector(state.level.wind, state.frame),
-  )
+  const wVector = add(lastWVector, calculateWindVector(level.wind, state.frame))
 
   const newPosition = add(nextTravelFrame, wVector)
 
-  const tree = minInList(state.level.trees, (tree) =>
+  const tree = minInList(level.trees, (tree) =>
     pointLineDistance(tree.center, disc.center, newPosition),
   )
   const combinedRadius = tree.radius + disc.radius
@@ -68,8 +66,8 @@ export const calculateDiscPosition = (state: State): Disc => {
       }
     }
 
-    const velocity = aToB(state.level.disc.center, newPosition)
-    const reflection = getReflection(state.level.disc.center, newPosition, tree)
+    const velocity = aToB(level.disc.center, newPosition)
+    const reflection = getReflection(level.disc.center, newPosition, tree)
 
     const angleDiff =
       Math.atan2(reflection[1], reflection[0]) -
@@ -129,69 +127,86 @@ export const calculateWindVector = (wind: WindState, frame: number): Vec2 => {
 }
 
 export const updateWind = (state: State): Partial<State> => {
-  const {
-    level: { wind },
-    frame,
-  } = state
+  const level = state.levels[state.currentLevel]
+  const { frame } = state
+  const { wind } = level
   if (frame - wind.startFrame > WIND_MAX_FRAMES) {
     return {
-      level: {
-        ...state.level,
-        wind: createWindState(
-          wind.endVector,
-          [Math.random() * 2 - 1, Math.random() * 2 - 1],
-          frame,
-        ),
-      },
+      levels: replaceAtIndex(
+        state.levels,
+        {
+          ...level,
+          wind: createWindState(
+            wind.endVector,
+            [Math.random() * 2 - 1, Math.random() * 2 - 1],
+            frame,
+          ),
+        },
+        state.currentLevel,
+      ),
     }
   }
   return {}
 }
 
 const updateFlyingDisc = (state: State): Partial<State> => {
-  if (!travelPosition(state.level.disc, state.frame) && state.shootNow) {
+  const currentLevel = state.levels[state.currentLevel]
+  if (!travelPosition(currentLevel.disc, state.frame) && state.shootNow) {
     const [m, e] = getShot(state.mouse)
 
     if (e[0] === 0 && e[1] === 0) {
       return { ...state }
     }
 
-    const travel = getTravel(state.level.disc.center, m, e)
+    const travel = getTravel(state.levels[state.currentLevel].disc.center, m, e)
 
     return {
       shot: [m, e],
       lastTravel: travel,
       lastTravelAt: state.frame,
-      level: {
-        ...state.level,
-        disc: {
-          ...state.level.disc,
-          wind: [],
-          travel,
-          travelStart: state.frame,
+      levels: replaceAtIndex(
+        state.levels,
+        {
+          ...currentLevel,
+          disc: {
+            ...currentLevel.disc,
+            wind: [],
+            travel,
+            travelStart: state.frame,
+          },
+          nrShots: currentLevel.nrShots + 1,
         },
-        nrShots: state.level.nrShots + 1,
-      },
+        state.currentLevel,
+      ),
     }
   }
 
   return {
-    level: {
-      ...state.level,
-      disc: calculateDiscPosition(state),
-    },
+    levels: replaceAtIndex(
+      state.levels,
+      {
+        ...currentLevel,
+        disc: calculateDiscPosition(state),
+      },
+      state.currentLevel,
+    ),
   }
 }
 
 const checkWinCondition = (state: State): Partial<State> => {
-  const overlaps = overlap(state.level.basket, state.level.disc)
-  if (overlaps && state.level.wonAt === null) {
+  const level = state.levels[state.currentLevel]
+  const overlaps = overlap(level.basket, level.disc)
+  if (overlaps && level.wonAt === null) {
     return {
-      level: {
-        ...state.level,
-        disc: { ...state.level.disc, travel: [] },
-        wonAt: state.frame,
-      },
+      levels: replaceAtIndex(
+        state.levels,
+        {
+          ...state.levels[state.currentLevel],
+          disc: { ...level.disc, travel: [] },
+          wonAt: state.frame,
+        },
+        state.currentLevel,
+      ),
     }
   }
   return {}
@@ -202,13 +217,14 @@ export const update = (state: State): State => {
     return init()
   }
 
-  if (state.clicked && state.level.wonAt) {
-    if (state.level.wonAt !== null) {
-      const [level, ...levels] = state.levels
+  const level = state.levels[state.currentLevel]
+
+  if (state.clicked && level.wonAt) {
+    if (level.wonAt !== null) {
       if (!level) {
         return state
       }
-      return { ...state, level, levels: levels }
+      return { ...state, currentLevel: state.currentLevel + 1 }
     }
   }
   return [checkWinCondition, updateWind, updateFlyingDisc].reduce(
