@@ -87,6 +87,9 @@ const game = (): void => {
   window.addEventListener('touchleave', abort)
   window.addEventListener('touchcancel', abort)
 
+  canvas.addEventListener('touchleave', abort)
+  canvas.addEventListener('touchcancel', abort)
+
   // actual loop, uses request animation frame to run 60fps
   const loop = (state: State) => () => {
     const currentKeys = new Set<string>()
