@@ -15,21 +15,32 @@ import {
   magnitude,
 } from './gjk'
 import { W, H } from './constants'
+import { WindState, createWindState } from './wind'
+import { WIND_MAX_FRAMES } from './constants'
+import { easing } from 'ts-easing'
 
-const discPosition = (
+const travelPosition = (
   disc: Disc,
   frame: number,
 ): [number, number] | undefined => disc.travel[frame - disc.travelStart]
 
 export const calculateDiscPosition = (state: State): Disc => {
   const disc = state.disc
-  const newPosition = discPosition(disc, state.frame)
+  const nextTravelFrame = travelPosition(state.disc, state.frame)
+
+  if (!nextTravelFrame) {
+    return disc
+  }
+
+  const newPosition = add(
+    nextTravelFrame,
+    calculateWindVector(state.wind, state.frame, disc.travelStart),
+  )
 
   const tree = state.trees[0]
   const combinedRadius = tree.radius + disc.radius
 
   if (
-    newPosition &&
     pointLineDistance(tree.center, disc.center, newPosition) < combinedRadius
   ) {
     const offset = multiply(
@@ -49,8 +60,8 @@ export const calculateDiscPosition = (state: State): Disc => {
       }
     }
 
-    const velocity = aToB(state.disc.center, remainingPath[0])
-    const reflection = getReflection(state.disc.center, remainingPath[0], tree)
+    const velocity = aToB(state.disc.center, newPosition)
+    const reflection = getReflection(state.disc.center, newPosition, tree)
 
     const angleDiff =
       Math.atan2(reflection[1], reflection[0]) -
@@ -94,12 +105,42 @@ export const calculateDiscPosition = (state: State): Disc => {
   return { ...disc, center: newPosition || disc.center }
 }
 
+export const calculateWindVector = (
+  wind: WindState,
+  thrownAt: number,
+  frame: number,
+): Vec2 => {
+  const { startVector, endVector, startFrame } = wind
+  const easingFunction = easing.linear
+  const t = Math.min((frame - startFrame) / WIND_MAX_FRAMES, 1)
+  const newX =
+    startVector[0] - (startVector[0] - endVector[0]) * easingFunction(t)
+  const newY =
+    startVector[1] - (startVector[1] - endVector[1]) * easingFunction(t)
+  return multiply([newX, newY], frame - thrownAt)
+}
+
+export const updateWind = (
+  windState: WindState,
+  currentFrame: number,
+): WindState => {
+  if (currentFrame - windState.startFrame > WIND_MAX_FRAMES) {
+    return createWindState(
+      windState.endVector,
+      [Math.random() * 2 - 1, Math.random() * 2 - 1],
+      currentFrame,
+    )
+  }
+  return windState
+}
+
 export const update = (state: State): State => {
   if (state.keys.has('r')) {
     return init()
   }
+  const wind = updateWind(state.wind, state.frame)
 
-  if (!discPosition(state.disc, state.frame) && state.keys.has('d')) {
+  if (!travelPosition(state.disc, state.frame) && state.keys.has('d')) {
     const m: Vec2 = [W / 2 + 15, H / 2]
     const e: Vec2 = [W / 2 + 30, 0]
 
@@ -114,11 +155,11 @@ export const update = (state: State): State => {
     }
   }
 
-  if (!discPosition(state.disc, state.frame) && state.shootNow) {
+  if (!travelPosition(state.disc, state.frame) && state.shootNow) {
     const [m, e] = getShot(state.mouse)
 
     if (e[0] === 0 && e[1] === 0) {
-      return state
+      return { ...state, wind }
     }
 
     return {
@@ -129,8 +170,13 @@ export const update = (state: State): State => {
         travel: getTravel(state.disc.center, m, e),
         travelStart: state.frame,
       },
+      wind,
     }
   }
 
-  return { ...state, disc: calculateDiscPosition(state) }
+  return {
+    ...state,
+    disc: calculateDiscPosition(state),
+    wind,
+  }
 }
