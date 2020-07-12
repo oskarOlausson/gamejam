@@ -1,7 +1,7 @@
 export const W = 355 // iphone X width's - 20
 export const H = 612 // iphone X height's - 200
 export const SEE_RADIUS = 80
-export const BACKGROUND_COLOR = '#EE6352'
+export const BACKGROUND_COLOR = '#386641'
 export const GRAVITY = -0.25
 export const FRICTION_AIR = 0.01
 export const FRICTION_GROUND = 0.07

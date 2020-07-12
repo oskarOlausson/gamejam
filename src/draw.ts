@@ -62,8 +62,7 @@ backgroundImg.src = imageUrl
 
 const drawBackground = (context: CanvasRenderingContext2D): void => {
   context.save()
-  const ptrn = context.createPattern(backgroundImg, 'repeat') // Create a pattern with this image, and set it to "repeat".
-  if (ptrn) context.fillStyle = ptrn
+  context.fillStyle = '#6A994E'
   context.fillRect(0, 0, W, H) // context.fillRect(x, y, width, height);
   context.restore()
 }
