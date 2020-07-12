@@ -1,4 +1,5 @@
 export * from './the-woods'
 export * from './wavy-woods'
 export * from './long-shot'
+export * from './penta-tree'
 export * from './woods-tight-trees'
