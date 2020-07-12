@@ -20,6 +20,7 @@ export const theWoods: Level = {
   },
   youHaveWon: false,
   disc: {
+    wind: [],
     center: [W / 2, H - 50],
     travel: [],
     travelStart: 0,
