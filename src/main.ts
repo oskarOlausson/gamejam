@@ -51,7 +51,7 @@ const game = (): void => {
     }
   }
 
-  function onTouchMove(window: Window, ev: TouchEvent) {
+  function onTouchMove(this: Window, ev: TouchEvent) {
     if (mouseIsDown) {
       const touch = ev.touches.item(0)
       if (touch) {
