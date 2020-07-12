@@ -15,7 +15,6 @@ import {
   magnitude,
   overlap,
 } from './gjk'
-import { W, H } from './constants'
 import { WindState, createWindState } from './wind'
 import { WIND_MAX_FRAMES } from './constants'
 import { easing } from 'ts-easing'
@@ -185,12 +184,12 @@ const updateFlyingDisc = (state: State): Partial<State> => {
 
 const checkWinCondition = (state: State): Partial<State> => {
   const overlaps = overlap(state.level.basket, state.level.disc)
-  if (overlaps) {
+  if (overlaps && state.level.wonAt === null) {
     return {
       level: {
         ...state.level,
         disc: { ...state.level.disc, travel: [] },
-        youHaveWon: true,
+        wonAt: state.frame,
       },
     }
   }
@@ -200,6 +199,16 @@ const checkWinCondition = (state: State): Partial<State> => {
 export const update = (state: State): State => {
   if (state.keys.has('r')) {
     return init()
+  }
+
+  if (state.clicked && state.level.wonAt) {
+    if (state.level.wonAt !== null) {
+      const [level, ...levels] = state.levels
+      if (!level) {
+        return state
+      }
+      return { ...state, level, levels: levels }
+    }
   }
   return [checkWinCondition, updateWind, updateFlyingDisc].reduce(
     (acc, stateUpdater) => ({

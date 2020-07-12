@@ -17,6 +17,13 @@ import {
 import { WindState } from './wind'
 import { calculateWindVector } from './update'
 import { Basket } from './basket'
+import {
+  RING_ANIMATION_TIME,
+  MENU_ANIMATION_TIME,
+  W,
+  BACKGROUND_COLOR,
+  H,
+} from './constants'
 
 const drawShape = (
   context: CanvasRenderingContext2D,
@@ -54,15 +61,6 @@ backgroundImg.src = imageUrl
 const drawBackground = (context: CanvasRenderingContext2D): void => {
   context.save()
   context.drawImage(backgroundImg, 0, 0)
-  context.restore()
-}
-
-const drawDot = (context: CanvasRenderingContext2D, [x, y]: Vec2): void => {
-  context.save()
-  context.beginPath()
-  context.fillStyle = '#000'
-  context.ellipse(x, y, 2, 2, 0, 0, 2 * Math.PI)
-  context.fill()
   context.restore()
 }
 
@@ -129,12 +127,72 @@ const drawBottomBasket = (ctx: CanvasRenderingContext2D, basket: Basket) => {
   ctx.restore()
 }
 
-const drawWinCondition = (ctx: CanvasRenderingContext2D) => {
+const drawMenu = (
+  context: CanvasRenderingContext2D,
+  state: State,
+  timeSinceOpen: number,
+): void => {
+  const size = 20
+  context.save()
+  context.fillStyle = BACKGROUND_COLOR
+
+  for (let x = size / 2; x < W; x += size) {
+    for (let y = size / 2; y < H; y += size) {
+      const t = Math.max(
+        0,
+        (timeSinceOpen - x / size - y / size) / MENU_ANIMATION_TIME,
+      )
+
+      const off = (size * t) / 2
+      const currentSize = size * t
+
+      context.fillRect(x - off, y - off, currentSize, currentSize)
+    }
+  }
+
+  if (timeSinceOpen > MENU_ANIMATION_TIME) {
+    context.fillStyle = '#fff'
+    context.textAlign = 'center'
+    context.font = '30px Comic Sans MS'
+    context.fillStyle = '#FFC0CB'
+    context.fillText('Click to go to next level', W / 2, 100, W)
+    context.fillText('5 over par', W / 2, 200, W)
+  }
+
+  context.restore()
+}
+
+const drawWinCondition = (ctx: CanvasRenderingContext2D, state: State) => {
+  const wonAt = state.level.wonAt
+  if (wonAt === null) {
+    return
+  }
+
   ctx.save()
-  ctx.font = '30px Comic Sans MS'
-  ctx.fillStyle = '#FFC0CB'
-  ctx.fillText('You did win, congrats.', 40, 200)
-  ctx.save()
+
+  if (state.frame - wonAt < RING_ANIMATION_TIME) {
+    const t = Math.max(0, 1 - (state.frame - wonAt) / RING_ANIMATION_TIME)
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, ' + t + ')'
+
+    const numberOfRings = 10
+
+    for (let i = 1; i <= numberOfRings; i++) {
+      drawShape(
+        ctx,
+        {
+          center: state.level.basket.center,
+          radius:
+            state.level.basket.radius + (1 - t) * (i / numberOfRings) * 300,
+        },
+        'stroke',
+      )
+    }
+  } else if (state.frame - RING_ANIMATION_TIME - wonAt > 0) {
+    drawMenu(ctx, state, state.frame - RING_ANIMATION_TIME - wonAt)
+  }
+
+  ctx.restore()
 }
 
 const drawShot = (
@@ -197,6 +255,13 @@ const drawShot = (
 
 // Screen is cleared before this function is called so this functions only concern is drawing the new state
 export const draw = (context: CanvasRenderingContext2D, state: State): void => {
+  context.save()
+  if (
+    state.level.wonAt !== null &&
+    state.frame - state.level.wonAt < RING_ANIMATION_TIME
+  ) {
+    context.translate(Math.random() * 5, Math.random() * 5)
+  }
   drawBackground(context)
 
   drawTopBasket(context, state.level.basket)
@@ -211,10 +276,11 @@ export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   drawBottomBasket(context, state.level.basket)
   drawWindIndicator(context, state.level.wind, state.frame)
 
-  if (state.level.youHaveWon) drawWinCondition(context)
-
   context.fillStyle = '#182'
   state.level.trees.forEach((t) => {
     drawShape(context, t, 'fill')
   })
+
+  drawWinCondition(context, state)
+  context.restore()
 }

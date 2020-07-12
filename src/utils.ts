@@ -2,7 +2,7 @@ import { Vec2 } from './gjk'
 
 export const getMousePositionInElement = (
   canvas: Element,
-  event: MouseEvent,
+  event: { clientX: number; clientY: number },
 ): Vec2 => {
   const rect = canvas.getBoundingClientRect()
   const x = event.clientX - rect.left

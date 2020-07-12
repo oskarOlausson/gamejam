@@ -2,10 +2,10 @@
  * Model for the game
  */
 
-import { W, H } from './constants'
 import { Vec2, Circle } from './gjk'
-import { WindState, createWindState } from './wind'
+import { WindState } from './wind'
 import { Basket } from './basket'
+import * as levels from './levels'
 
 export type Disc = Circle & {
   travel: Vec2[]
@@ -18,7 +18,7 @@ export type Level = {
   basket: Basket
   wind: WindState
   trees: Circle[]
-  youHaveWon: boolean
+  wonAt: null | number
 }
 
 export type State = {
@@ -30,39 +30,21 @@ export type State = {
   level: Level
   lastTravel: Vec2[]
   lastTravelAt: number
+  levels: Level[]
+  clicked: boolean
 }
+
+const allLevels = Object.values(levels)
 
 export const init = (): State => ({
   keys: new Set(),
   frame: 0,
   mouse: [],
-  level: {
-    trees: [
-      {
-        center: [W / 2, H / 2],
-        radius: 20,
-      },
-    ],
-    wind: createWindState(
-      [Math.random() * 2 - 1, Math.random() * 2 - 1],
-      [Math.random() * 2 - 1, Math.random() * 2 - 1],
-      0,
-    ),
-    basket: {
-      center: [W / 2, 0 + 50],
-      radius: 30,
-    },
-    youHaveWon: false,
-    disc: {
-      center: [W / 2, H - 50],
-      travel: [],
-      travelStart: 0,
-      radius: 20,
-      wind: [],
-    },
-  },
+  level: allLevels[0],
+  levels: allLevels.slice(1),
   shootNow: false,
   shot: [],
   lastTravel: [],
   lastTravelAt: 0,
+  clicked: false,
 })
