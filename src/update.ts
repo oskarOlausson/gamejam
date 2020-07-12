@@ -170,6 +170,7 @@ const updateFlyingDisc = (state: State): Partial<State> => {
           travel,
           travelStart: state.frame,
         },
+        nrShots: state.level.nrShots + 1,
       },
     }
   }

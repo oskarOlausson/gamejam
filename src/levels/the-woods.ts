@@ -26,4 +26,6 @@ export const theWoods: Level = {
     travelStart: 0,
     radius: 20,
   },
+  nrShots: 0,
+  par: 3,
 }

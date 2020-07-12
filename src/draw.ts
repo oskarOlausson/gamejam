@@ -115,6 +115,7 @@ const drawTopBasket = (ctx: CanvasRenderingContext2D, basket: Basket) => {
   const basketColor = '#212F3C'
 
   ctx.save()
+
   ctx.fillStyle = basketColor
   drawShape(ctx, basket, 'fill')
 
@@ -161,8 +162,28 @@ const drawMenu = (
     context.textAlign = 'center'
     context.font = '30px Comic Sans MS'
     context.fillStyle = '#FFC0CB'
-    context.fillText('Click to go to next level', W / 2, 100, W)
-    context.fillText('5 over par', W / 2, 200, W)
+    if (state.levels.length === 0) {
+      context.fillText('You won the game', W / 2, 100, W)
+    } else {
+      context.fillText('Click to go to next level', W / 2, 100, W)
+    }
+
+    const score = state.levels
+      .filter((a) => a.wonAt !== null)
+      .map((a) => a.nrShots - a.par)
+      .reduce((a, b) => a + b, 0)
+
+    const fn = (str: string) => {
+      context.fillText(str, W / 2, 200, W)
+    }
+
+    if (score > 0) {
+      fn(score + ' over par')
+    } else if (score === 0) {
+      fn('0 over/under par')
+    } else {
+      fn(-score + ' under par')
+    }
   }
 
   context.restore()
@@ -222,6 +243,7 @@ const drawShot = (
   const nEnd = shot[shot.length - 2]
 
   if (Math.sqrt(distanceSquared(start, end)) < 120) {
+    ctx.restore()
     return
   }
 

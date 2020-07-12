@@ -30,4 +30,6 @@ export const theWoodsTwoElectricBogaloo: Level = {
     travelStart: 0,
     radius: 20,
   },
+  nrShots: 1,
+  par: 3,
 }

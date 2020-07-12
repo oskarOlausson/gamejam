@@ -19,6 +19,8 @@ export type Level = {
   wind: WindState
   trees: Circle[]
   wonAt: null | number
+  nrShots: number
+  par: number
 }
 
 export type State = {
