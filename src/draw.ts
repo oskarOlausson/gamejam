@@ -247,7 +247,7 @@ const drawMenu = (
     context.font = '30px Comic Sans MS'
     context.fillStyle = '#FFC0CB'
     if (state.levels[state.levels.length - 1].wonAt !== null) {
-      context.fillText('You won the game', W / 2, 100, W)
+      context.fillText('You did win the game', W / 2, 100, W)
     } else {
       context.fillText('Click to go to next level', W / 2, 100, W)
     }
