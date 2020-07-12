@@ -12,7 +12,7 @@ export const distanceSquared = ([x, y]: Vec2, [ox, oy]: Vec2): number =>
   (ox - x) * (ox - x) + (oy - y) * (oy - y)
 
 export const overlap = (c0: Circle, c1: Circle): boolean =>
-  distanceSquared(c0.center, c1.center) < c0.radius + c1.radius
+  Math.sqrt(distanceSquared(c0.center, c1.center)) < c0.radius + c1.radius
 
 export const normalize = ([x, y]: Vec2): Vec2 => {
   const magnitude = Math.pow(x * x + y * y, 0.5)

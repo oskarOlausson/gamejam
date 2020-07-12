@@ -7,6 +7,7 @@ import { W, H } from './constants'
 import { Circle, Vec2, pointLineDistance } from './gjk'
 import { WindState } from './wind'
 import { calculateWindVector } from './update'
+import { Basket } from './basket'
 
 const drawShape = (
   context: CanvasRenderingContext2D,
@@ -97,12 +98,46 @@ const drawDisc = (ctx: CanvasRenderingContext2D, disc: Disc) => {
   ctx.restore()
 }
 
+const drawTopBasket = (ctx: CanvasRenderingContext2D, basket: Basket) => {
+  const basketColor = '#212F3C'
+
+  ctx.save()
+  ctx.fillStyle = basketColor
+  drawShape(ctx, basket, 'fill')
+
+  ctx.restore()
+}
+
+const drawBottomBasket = (ctx: CanvasRenderingContext2D, basket: Basket) => {
+  const { center, radius } = basket
+  const basketColorDark = '#85929E'
+
+  ctx.save()
+
+  ctx.fillStyle = basketColorDark
+  drawShape(ctx, { radius: radius * 0.8, center }, 'fill')
+
+  ctx.restore()
+}
+
+const drawWinCondition = (ctx: CanvasRenderingContext2D) => {
+  ctx.save()
+  ctx.font = '30px Comic Sans MS'
+  ctx.fillStyle = '#FFC0CB'
+  ctx.fillText('You did win, congrats.', 40, 200)
+  ctx.save()
+}
+
 // Screen is cleared before this function is called so this functions only concern is drawing the new state
 export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   drawBackground(context)
 
+  drawTopBasket(context, state.basket)
   drawDisc(context, state.disc)
+  drawBottomBasket(context, state.basket)
   drawWindIndicator(context, state.wind, state.frame)
+
+  if (state.youHaveWon) drawWinCondition(context)
 
   state.shot.forEach((s) => drawDot(context, s))
 

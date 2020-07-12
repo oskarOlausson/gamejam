@@ -13,6 +13,7 @@ import {
   add,
   Vec2,
   magnitude,
+  overlap,
 } from './gjk'
 import { W, H } from './constants'
 import { WindState, createWindState } from './wind'
@@ -120,26 +121,21 @@ export const calculateWindVector = (
   return multiply([newX, newY], frame - thrownAt)
 }
 
-export const updateWind = (
-  windState: WindState,
-  currentFrame: number,
-): WindState => {
-  if (currentFrame - windState.startFrame > WIND_MAX_FRAMES) {
-    return createWindState(
-      windState.endVector,
-      [Math.random() * 2 - 1, Math.random() * 2 - 1],
-      currentFrame,
-    )
+export const updateWind = (state: State): Partial<State> => {
+  const { wind, frame } = state
+  if (frame - wind.startFrame > WIND_MAX_FRAMES) {
+    return {
+      wind: createWindState(
+        wind.endVector,
+        [Math.random() * 2 - 1, Math.random() * 2 - 1],
+        frame,
+      ),
+    }
   }
-  return windState
+  return {}
 }
 
-export const update = (state: State): State => {
-  if (state.keys.has('r')) {
-    return init()
-  }
-  const wind = updateWind(state.wind, state.frame)
-
+const updateFlyingDisc = (state: State): Partial<State> => {
   if (!travelPosition(state.disc, state.frame) && state.keys.has('d')) {
     const m: Vec2 = [W / 2 + 15, H / 2]
     const e: Vec2 = [W / 2 + 30, 0]
@@ -159,24 +155,44 @@ export const update = (state: State): State => {
     const [m, e] = getShot(state.mouse)
 
     if (e[0] === 0 && e[1] === 0) {
-      return { ...state, wind }
+      return { ...state }
     }
 
     return {
-      ...state,
       shot: [m, e],
       disc: {
         ...state.disc,
         travel: getTravel(state.disc.center, m, e),
         travelStart: state.frame,
       },
-      wind,
     }
   }
 
   return {
-    ...state,
     disc: calculateDiscPosition(state),
-    wind,
   }
+}
+
+const checkWinCondition = (state: State): Partial<State> => {
+  const overlaps = overlap(state.basket, state.disc)
+  if (overlaps) {
+    return {
+      disc: { ...state.disc, travel: [] },
+      youHaveWon: true,
+    }
+  }
+  return {}
+}
+
+export const update = (state: State): State => {
+  if (state.keys.has('r')) {
+    return init()
+  }
+  return [checkWinCondition, updateWind, updateFlyingDisc].reduce(
+    (acc, stateUpdater) => ({
+      ...acc,
+      ...stateUpdater(acc),
+    }),
+    state,
+  )
 }

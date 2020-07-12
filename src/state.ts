@@ -5,6 +5,7 @@
 import { W, H } from './constants'
 import { Vec2, Circle } from './gjk'
 import { WindState, createWindState } from './wind'
+import { Basket } from './basket'
 
 export type Disc = Circle & {
   travel: Vec2[]
@@ -20,6 +21,8 @@ export type State = {
   trees: Circle[]
   shot: Vec2[]
   wind: WindState
+  basket: Basket
+  youHaveWon: boolean
 }
 
 export const init = (): State => ({
@@ -45,4 +48,9 @@ export const init = (): State => ({
     [Math.random() * 2 - 1, Math.random() * 2 - 1],
     0,
   ),
+  basket: {
+    center: [W / 2, 0 + 50],
+    radius: 30,
+  },
+  youHaveWon: false,
 })
