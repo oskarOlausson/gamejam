@@ -16,7 +16,7 @@ import {
   magnitude,
 } from './gjk'
 import { WindState } from './wind'
-import { calculateWindVector } from './update'
+import { calculateWindVector, travelPosition } from './update'
 import { Basket } from './basket'
 import {
   RING_ANIMATION_TIME,
@@ -25,6 +25,7 @@ import {
   BACKGROUND_COLOR,
   H,
 } from './constants'
+import { getShot, getTravel } from './travel'
 
 const drawShape = (
   context: CanvasRenderingContext2D,
@@ -95,7 +96,7 @@ const drawWindIndicator = (
 
     const goal: Vec2 = [x + vx, y + vy]
 
-    const alpha = 2 * Math.min(Math.abs(myT), Math.abs(1 - myT))
+    const alpha = 1.6 * Math.min(Math.abs(myT), Math.abs(1 - myT))
     context.strokeStyle = 'rgba(255, 255, 255, ' + alpha + ')'
     context.lineCap = 'round'
     context.lineWidth = magnitude([vx, vy]) / 10
@@ -174,6 +175,46 @@ const drawNbrShots = (ctx: CanvasRenderingContext2D, shots: number) => {
   ctx.fillStyle = '#FFC0CB'
   ctx.fillText(`Shots: ${shots}`, 40, 30)
 
+  ctx.restore()
+}
+
+const drawAim = (ctx: CanvasRenderingContext2D, state: State) => {
+  const disc = state.levels[state.currentLevel].disc
+  if (travelPosition(disc, state.frame)) {
+    return
+  }
+
+  if (state.mouse.length === 0) {
+    return
+  }
+
+  const [e, x] = getShot(state.mouse)
+
+  const shot = getTravel(disc.center, e, x)
+
+  if (shot.length < 2) {
+    return
+  }
+
+  const start = shot[0]
+  const end = shot[shot.length - 1]
+
+  if (Math.sqrt(distanceSquared(start, end)) < 120) {
+    return
+  }
+
+  ctx.save()
+  ctx.beginPath()
+
+  ctx.fillStyle = '#000'
+
+  ctx.moveTo(start[0], start[1])
+
+  shot.slice(1).forEach(([x, y]) => {
+    ctx.lineTo(x, y)
+  })
+
+  ctx.stroke()
   ctx.restore()
 }
 
@@ -350,6 +391,7 @@ export const draw = (context: CanvasRenderingContext2D, state: State): void => {
     state.lastTravelAt,
     state.frame,
   )
+  drawAim(context, state)
   drawDisc(context, level.disc)
   drawBottomBasket(context, level.basket, level.par)
   drawWindIndicator(context, level.wind, state.frame)
