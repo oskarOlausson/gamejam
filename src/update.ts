@@ -20,7 +20,7 @@ import { WIND_MAX_FRAMES } from './constants'
 import { easing } from 'ts-easing'
 import { minInList } from './utils'
 
-const travelPosition = (
+export const travelPosition = (
   disc: Disc,
   frame: number,
 ): [number, number] | undefined => disc.travel[frame - disc.travelStart]

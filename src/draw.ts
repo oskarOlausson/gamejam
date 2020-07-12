@@ -13,6 +13,7 @@ import {
   aToB,
   add,
   distanceSquared,
+  magnitude,
 } from './gjk'
 import { WindState } from './wind'
 import { calculateWindVector } from './update'
@@ -60,7 +61,9 @@ backgroundImg.src = imageUrl
 
 const drawBackground = (context: CanvasRenderingContext2D): void => {
   context.save()
-  context.drawImage(backgroundImg, 0, 0)
+  const ptrn = context.createPattern(backgroundImg, 'repeat') // Create a pattern with this image, and set it to "repeat".
+  if (ptrn) context.fillStyle = ptrn
+  context.fillRect(0, 0, W, H) // context.fillRect(x, y, width, height);
   context.restore()
 }
 
@@ -85,17 +88,20 @@ const drawWindIndicator = (
 }
 
 const drawDisc = (ctx: CanvasRenderingContext2D, disc: Disc) => {
-  const center = disc.center
+  const center: Vec2 = [0, 0]
   const discColor = '#3498DB'
   const discColorDark = '#2471A3'
 
   ctx.save()
+
+  ctx.translate(disc.center[0], disc.center[1])
 
   const outerDisc: Circle = { center, radius: disc.radius }
   const innerDisc: Circle = { center, radius: disc.radius * 0.7 }
   const innermostDisc: Circle = { center, radius: disc.radius * 0.6 }
 
   ctx.fillStyle = discColor
+
   drawShape(ctx, outerDisc, 'fill')
   ctx.fillStyle = discColorDark
   drawShape(ctx, innerDisc, 'fill')
@@ -256,9 +262,13 @@ const drawShot = (
 // Screen is cleared before this function is called so this functions only concern is drawing the new state
 export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   context.save()
+  const travel = state.level.disc.travel
   if (
-    state.level.wonAt !== null &&
-    state.frame - state.level.wonAt < RING_ANIMATION_TIME
+    (state.level.wonAt !== null &&
+      state.frame - state.level.wonAt < RING_ANIMATION_TIME) ||
+    (state.frame - state.level.disc.travelStart < 8 &&
+      travel.length > 2 &&
+      magnitude(aToB(travel[0], travel[1])) > 10)
   ) {
     context.translate(Math.random() * 5, Math.random() * 5)
   }
