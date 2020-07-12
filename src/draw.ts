@@ -5,6 +5,8 @@
 import { State } from './state'
 import { W, H } from './constants'
 import { Circle, Vec2 } from './gjk'
+import { WindState } from './wind'
+import { calculateWindVector } from './update'
 
 const drawShape = (
   context: CanvasRenderingContext2D,
@@ -61,6 +63,26 @@ const drawDot = (context: CanvasRenderingContext2D, [x, y]: Vec2): void => {
   context.restore()
 }
 
+const drawWindIndicator = (
+  context: CanvasRenderingContext2D,
+  windState: WindState,
+  frame: number,
+) => {
+  context.save()
+  const [x, y] = calculateWindVector(windState, frame)
+  const offsetX = 100
+  const offsetY = 100
+  context.strokeStyle = '5px #000'
+  context.beginPath()
+  context.moveTo(offsetX, offsetY)
+  context.lineTo(offsetX + x * 20, offsetY + y * 20)
+  context.stroke()
+  context.beginPath()
+  context.arc(offsetX, offsetY, 20, 0, 2 * Math.PI)
+  context.stroke()
+  context.restore()
+}
+
 // Screen is cleared before this function is called so this functions only concern is drawing the new state
 export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   drawBackground(context)
@@ -75,6 +97,8 @@ export const draw = (context: CanvasRenderingContext2D, state: State): void => {
     },
     'fill',
   )
+
+  drawWindIndicator(context, state.wind, state.frame)
 
   state.shot.forEach((s) => drawDot(context, s))
 }

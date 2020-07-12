@@ -22,8 +22,8 @@ export const getShot = (mouse: Vec2[]): [Vec2, Vec2] => {
   return [m, w]
 }
 
-
-export const bezier = (start: Vec2, middle: Vec2, end: Vec2, t: number): Vec2 => add(
+export const bezier = (start: Vec2, middle: Vec2, end: Vec2, t: number): Vec2 =>
+  add(
     multiply(start, (1 - t) * (1 - t)),
     multiply(middle, 2 * t * (1 - t)),
     multiply(end, t * t),
@@ -45,7 +45,7 @@ export const getTravel = (
     indices.push(Math.pow(i, 0.6))
   }
 
-  indices.push(1);
+  indices.push(1)
 
   return indices
     .map((i) => i / indices[indices.length - 1])
