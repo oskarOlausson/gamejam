@@ -12,7 +12,7 @@ const createTreeCurve = (): Array<Circle> =>
 export const wavyWoods: Level = {
   trees: [...createTreeCurve()],
   nrShots: 0,
-  par: 4,
+  par: 2,
   wind: createWindState(
     [Math.random() * 2 - 1, Math.random() * 2 - 1],
     [Math.random() * 2 - 1, Math.random() * 2 - 1],
