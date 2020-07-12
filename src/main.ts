@@ -46,12 +46,14 @@ const game = (): void => {
   }
 
   function onMouseMove(this: Window, ev: MouseEvent) {
+    ev.preventDefault()
     if (mouseIsDown) {
       ms.push(getMousePositionInElement(canvas, ev))
     }
   }
 
   function onTouchMove(this: Window, ev: TouchEvent) {
+    ev.preventDefault()
     if (mouseIsDown) {
       const touch = ev.touches.item(0)
       if (touch) {

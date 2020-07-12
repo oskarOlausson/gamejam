@@ -18,7 +18,7 @@ export const theWoods: Level = {
     center: [W / 2, 0 + 50],
     radius: 30,
   },
-  youHaveWon: false,
+  youHaveWon: true,
   disc: {
     wind: [],
     center: [W / 2, H - 50],

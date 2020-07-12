@@ -7,6 +7,7 @@ import { Circle, Vec2 } from './gjk'
 import { WindState } from './wind'
 import { calculateWindVector } from './update'
 import { Basket } from './basket'
+import { W, H } from './constants'
 
 const drawShape = (
   context: CanvasRenderingContext2D,
@@ -43,7 +44,9 @@ backgroundImg.src = imageUrl
 
 const drawBackground = (context: CanvasRenderingContext2D): void => {
   context.save()
-  context.drawImage(backgroundImg, 0, 0)
+  const ptrn = context.createPattern(backgroundImg, 'repeat') // Create a pattern with this image, and set it to "repeat".
+  if (ptrn) context.fillStyle = ptrn
+  context.fillRect(0, 0, W, H) // context.fillRect(x, y, width, height);
   context.restore()
 }
 
@@ -121,14 +124,14 @@ const drawBottomBasket = (ctx: CanvasRenderingContext2D, basket: Basket) => {
 
 const drawWinCondition = (ctx: CanvasRenderingContext2D, state: State) => {
   ctx.save()
-  ctx.font = '30px Comic Sans MS'
+  ctx.font = `20px Comic Sans MS`
   ctx.fillStyle = '#FFC0CB'
   if (state.level.youHaveWon && state.levels.length > 0) {
-    ctx.fillText('You did get it, congrats,', 40, 200)
-    ctx.fillText('press ur "n"-key to go to next level.', 40, 250)
+    ctx.fillText('You did get it, congrats,', 10, 200)
+    ctx.fillText('press ur "n"-key to go to next level.', 10, 250)
   } else if (state.level.youHaveWon && state.levels.length === 0) {
-    ctx.fillText('You did win the whole game, congrats...', 40, 200)
-    ctx.fillText('Take a break.', 40, 250)
+    ctx.fillText('You did win the whole game, congrats...', 10, 200)
+    ctx.fillText('Take a break.', 10, 250)
   }
   ctx.save()
 }
