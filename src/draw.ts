@@ -96,14 +96,13 @@ const drawWindIndicator = (
 
     const goal: Vec2 = [x + vx, y + vy]
 
-    const alpha = 1.6 * Math.min(Math.abs(myT), Math.abs(1 - myT))
-    context.strokeStyle = 'rgba(255, 255, 255, ' + alpha + ')'
+    context.strokeStyle = '#fff'
     context.lineCap = 'round'
-    context.lineWidth = magnitude([vx, vy]) / 10
+    context.lineWidth = 4 * Math.min(Math.abs(myT), Math.abs(1 - myT))
     context.beginPath()
-    const [fx, fy] = lerp([x, y], goal, myT / 2)
+    const [fx, fy] = lerp([x, y], goal, 1 - myT / 2)
     context.moveTo(fx, fy)
-    const [tx, ty] = lerp([x, y], goal, myT)
+    const [tx, ty] = lerp([x, y], goal, 1 - myT)
     context.lineTo(tx, ty)
     context.stroke()
   }
