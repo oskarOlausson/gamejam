@@ -2,7 +2,7 @@
  * Draw game state based on current state
  */
 
-import { State } from './state'
+import { State, Disc } from './state'
 import { W, H } from './constants'
 import { Circle, Vec2 } from './gjk'
 import { WindState } from './wind'
@@ -37,20 +37,13 @@ const drawShape = (
   }
 }
 
+const imageUrl = '/assets/images/grass.jpg'
+const backgroundImg = document.createElement('img')
+backgroundImg.src = imageUrl
+
 const drawBackground = (context: CanvasRenderingContext2D): void => {
   context.save()
-  context.fillStyle = '#0e3'
-
-  context.beginPath()
-
-  context.moveTo(0, H / 2)
-  context.lineTo(W / 2, 0)
-  context.lineTo(W, H / 2)
-  context.lineTo(W / 2, H)
-  context.lineTo(0, H / 2)
-
-  context.fill()
-
+  context.drawImage(backgroundImg, 0, 0)
   context.restore()
 }
 
@@ -83,21 +76,32 @@ const drawWindIndicator = (
   context.restore()
 }
 
+const drawDisc = (ctx: CanvasRenderingContext2D, disc: Disc) => {
+  const center = disc.center
+  const discColor = '#3498DB'
+  const discColorDark = '#2471A3'
+
+  ctx.save()
+
+  const outerDisc: Circle = { center, radius: disc.radius }
+  const innerDisc: Circle = { center, radius: disc.radius * 0.7 }
+  const innermostDisc: Circle = { center, radius: disc.radius * 0.6 }
+
+  ctx.fillStyle = discColor
+  drawShape(ctx, outerDisc, 'fill')
+  ctx.fillStyle = discColorDark
+  drawShape(ctx, innerDisc, 'fill')
+  ctx.fillStyle = discColor
+  drawShape(ctx, innermostDisc, 'fill')
+
+  ctx.restore()
+}
+
 // Screen is cleared before this function is called so this functions only concern is drawing the new state
 export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   drawBackground(context)
 
-  context.fillStyle = '#000'
-  drawShape(
-    context,
-    {
-      ...state.disc,
-      radius: state.disc.radius,
-      center: state.disc.center,
-    },
-    'fill',
-  )
-
+  drawDisc(context, state.disc)
   drawWindIndicator(context, state.wind, state.frame)
 
   state.shot.forEach((s) => drawDot(context, s))
