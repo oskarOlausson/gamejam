@@ -41,7 +41,7 @@ const game = (): void => {
   const ms: Vec2[] = []
   let mouseIsDown = false
 
-  function onMouseDown(this: Window, ev: MouseEvent) {
+  function onMouseDown(this: Window) {
     mouseIsDown = true
   }
 
@@ -51,7 +51,16 @@ const game = (): void => {
     }
   }
 
-  function onMouseUp(this: Window, ev: MouseEvent) {
+  function onTouchMove(window: Window, ev: TouchEvent) {
+    if (mouseIsDown) {
+      const touch = ev.touches.item(0)
+      if (touch) {
+        ms.push(getMousePositionInElement(canvas, touch))
+      }
+    }
+  }
+
+  function onMouseUp(this: Window) {
     mouseIsDown = false
   }
 
@@ -61,6 +70,10 @@ const game = (): void => {
   window.addEventListener('mouseup', onMouseUp)
   window.addEventListener('mouseout', onMouseUp)
   window.addEventListener('mousemove', onMouseMove)
+
+  window.addEventListener('touchstart', onMouseDown)
+  window.addEventListener('touchmove', onTouchMove)
+  window.addEventListener('touchend', onMouseUp)
 
   // actual loop, uses request animation frame to run 60fps
   const loop = (state: State) => () => {
