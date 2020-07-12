@@ -15,13 +15,12 @@ import {
   magnitude,
   overlap,
 } from './gjk'
-import { W, H } from './constants'
 import { WindState, createWindState } from './wind'
 import { WIND_MAX_FRAMES } from './constants'
 import { easing } from 'ts-easing'
 import { minInList } from './utils'
 
-const travelPosition = (
+export const travelPosition = (
   disc: Disc,
   frame: number,
 ): [number, number] | undefined => disc.travel[frame - disc.travelStart]
@@ -150,24 +149,6 @@ export const updateWind = (state: State): Partial<State> => {
 }
 
 const updateFlyingDisc = (state: State): Partial<State> => {
-  if (!travelPosition(state.level.disc, state.frame) && state.keys.has('d')) {
-    const m: Vec2 = [W / 2 + 15, H / 2]
-    const e: Vec2 = [W / 2 + 30, 0]
-
-    return {
-      shot: [m, e],
-      level: {
-        ...state.level,
-        disc: {
-          ...state.level.disc,
-          travel: getTravel(state.level.disc.center, m, e),
-          travelStart: state.frame,
-          wind: [],
-        },
-      },
-    }
-  }
-
   if (!travelPosition(state.level.disc, state.frame) && state.shootNow) {
     const [m, e] = getShot(state.mouse)
 
@@ -175,14 +156,18 @@ const updateFlyingDisc = (state: State): Partial<State> => {
       return { ...state }
     }
 
+    const travel = getTravel(state.level.disc.center, m, e)
+
     return {
       shot: [m, e],
+      lastTravel: travel,
+      lastTravelAt: state.frame,
       level: {
         ...state.level,
         disc: {
           ...state.level.disc,
           wind: [],
-          travel: getTravel(state.level.disc.center, m, e),
+          travel,
           travelStart: state.frame,
         },
       },
@@ -199,12 +184,12 @@ const updateFlyingDisc = (state: State): Partial<State> => {
 
 const checkWinCondition = (state: State): Partial<State> => {
   const overlaps = overlap(state.level.basket, state.level.disc)
-  if (overlaps) {
+  if (overlaps && state.level.wonAt === null) {
     return {
       level: {
         ...state.level,
         disc: { ...state.level.disc, travel: [] },
-        youHaveWon: true,
+        wonAt: state.frame,
       },
     }
   }
@@ -215,8 +200,9 @@ export const update = (state: State): State => {
   if (state.keys.has('r')) {
     return init()
   }
-  if (state.keys.has('n')) {
-    if (state.level.youHaveWon) {
+
+  if (state.clicked && state.level.wonAt) {
+    if (state.level.wonAt !== null) {
       const [level, ...levels] = state.levels
       if (!level) {
         return state

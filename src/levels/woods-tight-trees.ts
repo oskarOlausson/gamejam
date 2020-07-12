@@ -26,7 +26,7 @@ export const theWoodsTightTrees: Level = {
     center: [W / 2 + 50, 100],
     radius: 30,
   },
-  youHaveWon: false,
+  wonAt: null,
   disc: {
     wind: [],
     center: [W / 2, H - 50],

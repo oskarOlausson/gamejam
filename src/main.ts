@@ -40,6 +40,7 @@ const game = (): void => {
 
   const ms: Vec2[] = []
   let mouseIsDown = false
+  let clicked = false
 
   function onMouseDown(this: Window) {
     mouseIsDown = true
@@ -63,6 +64,7 @@ const game = (): void => {
 
   function onMouseUp(this: Window) {
     mouseIsDown = false
+    clicked = true
   }
 
   window.addEventListener('keydown', onKeyDown)
@@ -92,6 +94,7 @@ const game = (): void => {
       keys: currentKeys,
       mouse: [...ms],
       shootNow,
+      clicked,
     })
 
     if (shootNow) {
@@ -99,6 +102,8 @@ const game = (): void => {
         ms.pop()
       }
     }
+
+    clicked = false
 
     context.clearRect(0, 0, W, H)
     draw(context, state)

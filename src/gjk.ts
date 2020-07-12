@@ -4,6 +4,10 @@ export type Circle = {
   radius: number
 }
 
+export const lerp = ([x, y]: Vec2, [x2, y2]: Vec2, t: number): Vec2 => {
+  return [x * (1 - t) + x2 * t, y * (1 - t) + y2 * t]
+}
+
 export const aToB = (a: Vec2, b: Vec2): Vec2 => [b[0] - a[0], b[1] - a[1]]
 
 export const minus = (a: Vec2, b: Vec2): Vec2 => [a[0] - b[0], a[1] - b[1]]

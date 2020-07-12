@@ -2,9 +2,8 @@
  * Model for the game
  */
 
-import { W, H } from './constants'
 import { Vec2, Circle } from './gjk'
-import { WindState, createWindState } from './wind'
+import { WindState } from './wind'
 import { Basket } from './basket'
 import * as levels from './levels'
 import { treeAdder } from './tree-adder'
@@ -20,7 +19,7 @@ export type Level = {
   basket: Basket
   wind: WindState
   trees: Circle[]
-  youHaveWon: boolean
+  wonAt: null | number
 }
 
 export type State = {
@@ -30,7 +29,10 @@ export type State = {
   shootNow: boolean
   shot: Vec2[]
   level: Level
+  lastTravel: Vec2[]
+  lastTravelAt: number
   levels: Level[]
+  clicked: boolean
 }
 
 const allLevels = Object.values(levels).map(treeAdder)
@@ -43,4 +45,7 @@ export const init = (): State => ({
   levels: allLevels.slice(1),
   shootNow: false,
   shot: [],
+  lastTravel: [],
+  lastTravelAt: 0,
+  clicked: false,
 })
