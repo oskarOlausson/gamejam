@@ -145,7 +145,11 @@ const drawTopBasket = (ctx: CanvasRenderingContext2D, basket: Basket) => {
   ctx.restore()
 }
 
-const drawBottomBasket = (ctx: CanvasRenderingContext2D, basket: Basket) => {
+const drawBottomBasket = (
+  ctx: CanvasRenderingContext2D,
+  basket: Basket,
+  par: number,
+) => {
   const { center, radius } = basket
   const basketColorDark = '#85929E'
 
@@ -153,6 +157,22 @@ const drawBottomBasket = (ctx: CanvasRenderingContext2D, basket: Basket) => {
 
   ctx.fillStyle = basketColorDark
   drawShape(ctx, { radius: radius * 0.8, center }, 'fill')
+
+  ctx.textAlign = 'center'
+  ctx.font = '15px Comic Sans MS'
+  ctx.fillStyle = '#FFC0CB'
+  ctx.fillText(`Par: ${par}`, basket.center[0], basket.center[1] + 8)
+
+  ctx.restore()
+}
+
+const drawNbrShots = (ctx: CanvasRenderingContext2D, shots: number) => {
+  ctx.save()
+
+  ctx.textAlign = 'center'
+  ctx.font = '18px Comic Sans MS'
+  ctx.fillStyle = '#FFC0CB'
+  ctx.fillText(`Shots: ${shots}`, 40, 30)
 
   ctx.restore()
 }
@@ -320,6 +340,8 @@ export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   }
   drawBackground(context)
 
+  drawNbrShots(context, level.nrShots)
+
   drawTopBasket(context, level.basket)
   drawShot(
     context,
@@ -329,7 +351,8 @@ export const draw = (context: CanvasRenderingContext2D, state: State): void => {
     state.frame,
   )
   drawDisc(context, level.disc)
-  drawBottomBasket(context, level.basket)
+  drawBottomBasket(context, level.basket, level.par)
+  drawWindIndicator(context, level.wind, state.frame)
 
   context.fillStyle = '#182'
   level.trees.forEach((t) => {

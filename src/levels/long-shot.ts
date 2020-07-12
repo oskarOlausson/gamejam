@@ -2,35 +2,29 @@ import { Level } from '../state'
 import { createWindState } from '../wind'
 import { W, H } from '../constants'
 
-export const theWoodsTwoElectricBogaloo: Level = {
+export const longShot: Level = {
   trees: [
-    {
-      center: [W / 2 - 10, H / 2],
-      radius: 20,
-    },
-    {
-      center: [W / 2 + 10, H / 2],
-      radius: 20,
-    },
+    { center: [60, 60], radius: 20 },
+    { center: [W - 30, H - 30], radius: 20 },
   ],
+  nrShots: 0,
+  par: 1,
   wind: createWindState(
     [Math.random() * 2 - 1, Math.random() * 2 - 1],
     [Math.random() * 2 - 1, Math.random() * 2 - 1],
     0,
   ),
   basket: {
-    center: [W / 2, 0 + 50],
+    center: [W - 40, 80],
     radius: 30,
   },
   wonAt: null,
   disc: {
     wind: [],
-    center: [W / 2, H - 50],
+    center: [40, H - 80],
     travel: [],
     travelStart: 0,
     radius: 20,
-    lastShot: [W / 2, H - 50],
+    lastShot: [40, H - 80],
   },
-  nrShots: 1,
-  par: 3,
 }

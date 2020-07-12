@@ -5,7 +5,11 @@ import { W, H } from '../constants'
 export const theWoods: Level = {
   trees: [
     {
-      center: [W / 2, H / 2],
+      center: [W / 2 - 50, H / 2],
+      radius: 20,
+    },
+    {
+      center: [W / 2 + 50, H / 2],
       radius: 20,
     },
   ],
