@@ -127,15 +127,15 @@ export const calculateWindVector = (wind: WindState, frame: number): Vec2 => {
 }
 
 export const updateWind = (state: State): Partial<State> => {
-  const level = state.levels[state.currentLevel]
+  const currentLevelObject = state.levels[state.currentLevel]
   const { frame } = state
-  const { wind } = level
+  const { wind } = currentLevelObject
   if (frame - wind.startFrame > WIND_MAX_FRAMES) {
     return {
       levels: replaceAtIndex(
         state.levels,
         {
-          ...level,
+          ...currentLevelObject,
           wind: createWindState(
             wind.endVector,
             [Math.random() * 2 - 1, Math.random() * 2 - 1],
@@ -194,15 +194,15 @@ const updateFlyingDisc = (state: State): Partial<State> => {
 }
 
 const checkWinCondition = (state: State): Partial<State> => {
-  const level = state.levels[state.currentLevel]
-  const overlaps = overlap(level.basket, level.disc)
-  if (overlaps && level.wonAt === null) {
+  const currentLevelObject = state.levels[state.currentLevel]
+  const overlaps = overlap(currentLevelObject.basket, currentLevelObject.disc)
+  if (overlaps && currentLevelObject.wonAt === null) {
     return {
       levels: replaceAtIndex(
         state.levels,
         {
           ...state.levels[state.currentLevel],
-          disc: { ...level.disc, travel: [] },
+          disc: { ...currentLevelObject.disc, travel: [] },
           wonAt: state.frame,
         },
         state.currentLevel,

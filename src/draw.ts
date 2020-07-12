@@ -2,7 +2,7 @@
  * Draw game state based on current state
  */
 
-import { State, Disc } from './state'
+import { State, Disc, Level } from './state'
 import {
   Circle,
   Vec2,
@@ -190,8 +190,9 @@ const drawMenu = (
 }
 
 const drawWinCondition = (ctx: CanvasRenderingContext2D, state: State) => {
-  const level = state.levels[state.currentLevel]
-  const wonAt = level.wonAt
+  const level = state.levels[state.currentLevel] as Level | undefined
+  if (!level) return
+  const wonAt = level?.wonAt
   if (wonAt === null) {
     return
   }
