@@ -10,3 +10,18 @@ export const DISC_MAX_FRAMES = 180
 
 export const RING_ANIMATION_TIME = 60
 export const MENU_ANIMATION_TIME = 60
+
+export const banter = {
+  bad: ['My mom plays better', 'Your mom did play better', 'Lol, give up!'],
+  normal: [
+    'Not ready for pro games',
+    'Not bad, not good.',
+    'You need some practice.',
+  ],
+  good: [
+    'Who do you think you are?',
+    'Get lost.',
+    'WHAT!?',
+    'Awesomesauce with spaghetti.',
+  ],
+}

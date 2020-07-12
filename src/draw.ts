@@ -24,6 +24,7 @@ import {
   W,
   BACKGROUND_COLOR,
   H,
+  banter,
 } from './constants'
 import { getShot, getTravel } from './travel'
 
@@ -68,6 +69,11 @@ const drawBackground = (context: CanvasRenderingContext2D): void => {
   context.restore()
 }
 
+const seededRandom = (seed: number): number => {
+  const r = Math.sin(seed) * 10000
+  return Math.abs(r - Math.floor(r))
+}
+
 const drawWindIndicator = (
   context: CanvasRenderingContext2D,
   windState: WindState,
@@ -81,14 +87,10 @@ const drawWindIndicator = (
   const t = Math.max(0, index / animationLength - 0.2)
 
   let seed = index
-  const random = (): number => {
-    const r = Math.sin(seed++) * 10000
-    return Math.abs(r - Math.floor(r))
-  }
 
   for (let i = 0; i < 30; i++) {
-    const x = random() * W
-    const y = random() * H
+    const x = seededRandom(seed++) * W
+    const y = seededRandom(seed++) * H
     let myT = t + i / 30
     if (myT > 1) {
       myT = 0
@@ -222,6 +224,7 @@ const drawMenu = (
   state: State,
   timeSinceOpen: number,
 ): void => {
+  const level = state.levels[state.currentLevel]
   const size = 20
   context.save()
   context.fillStyle = BACKGROUND_COLOR
@@ -267,6 +270,20 @@ const drawMenu = (
     } else {
       fn(-score + ' under par')
     }
+
+    const banterFn = (str: string) => {
+      context.fillText(str, W / 2, 300, W)
+    }
+
+    const banterKey: keyof typeof banter =
+      score < 0 ? 'good' : score === 0 ? 'normal' : 'bad'
+
+    const banterStrings = banter[banterKey]
+    const banterString =
+      banterStrings[
+        Math.floor(seededRandom(level.wonAt || 0) * banterStrings.length)
+      ]
+    banterFn(banterString)
   }
 
   context.restore()
