@@ -6,6 +6,7 @@ import { W, H } from './constants'
 import { Vec2, Circle } from './gjk'
 import { WindState, createWindState } from './wind'
 import { Basket } from './basket'
+import * as levels from './levels'
 
 export type Disc = Circle & {
   travel: Vec2[]
@@ -27,36 +28,17 @@ export type State = {
   shootNow: boolean
   shot: Vec2[]
   level: Level
+  levels: Level[]
 }
+
+const allLevels = Object.values(levels)
 
 export const init = (): State => ({
   keys: new Set(),
   frame: 0,
   mouse: [],
-  level: {
-    trees: [
-      {
-        center: [W / 2, H / 2],
-        radius: 20,
-      },
-    ],
-    wind: createWindState(
-      [Math.random() * 2 - 1, Math.random() * 2 - 1],
-      [Math.random() * 2 - 1, Math.random() * 2 - 1],
-      0,
-    ),
-    basket: {
-      center: [W / 2, 0 + 50],
-      radius: 30,
-    },
-    youHaveWon: false,
-    disc: {
-      center: [W / 2, H - 50],
-      travel: [],
-      travelStart: 0,
-      radius: 20,
-    },
-  },
+  level: allLevels[0],
+  levels: allLevels.slice(1),
   shootNow: false,
   shot: [],
 })

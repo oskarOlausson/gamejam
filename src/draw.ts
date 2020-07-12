@@ -120,11 +120,17 @@ const drawBottomBasket = (ctx: CanvasRenderingContext2D, basket: Basket) => {
   ctx.restore()
 }
 
-const drawWinCondition = (ctx: CanvasRenderingContext2D) => {
+const drawWinCondition = (ctx: CanvasRenderingContext2D, state: State) => {
   ctx.save()
   ctx.font = '30px Comic Sans MS'
   ctx.fillStyle = '#FFC0CB'
-  ctx.fillText('You did win, congrats.', 40, 200)
+  if (state.level.youHaveWon && state.levels.length > 0) {
+    ctx.fillText('You did get it, congrats,', 40, 200)
+    ctx.fillText('press ur "n"-key to go to next level.', 40, 250)
+  } else if (state.level.youHaveWon && state.levels.length === 0) {
+    ctx.fillText('You did win the whole game, congrats...', 40, 200)
+    ctx.fillText('Take a break.', 40, 250)
+  }
   ctx.save()
 }
 
@@ -137,7 +143,7 @@ export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   drawBottomBasket(context, state.level.basket)
   drawWindIndicator(context, state.level.wind, state.frame)
 
-  if (state.level.youHaveWon) drawWinCondition(context)
+  drawWinCondition(context, state)
 
   state.shot.forEach((s) => drawDot(context, s))
 

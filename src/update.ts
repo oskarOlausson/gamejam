@@ -206,6 +206,15 @@ export const update = (state: State): State => {
   if (state.keys.has('r')) {
     return init()
   }
+  if (state.keys.has('n')) {
+    if (state.level.youHaveWon) {
+      const [level, ...levels] = state.levels
+      if (!level) {
+        return state
+      }
+      return { ...state, level, levels: levels }
+    }
+  }
   return [checkWinCondition, updateWind, updateFlyingDisc].reduce(
     (acc, stateUpdater) => ({
       ...acc,
