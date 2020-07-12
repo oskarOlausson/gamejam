@@ -25,6 +25,7 @@ export const theWoods: Level = {
     travel: [],
     travelStart: 0,
     radius: 20,
+    lastShot: [W / 2, H - 50],
   },
   nrShots: 0,
   par: 3,

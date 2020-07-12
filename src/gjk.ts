@@ -1,3 +1,5 @@
+import { W, H } from './constants'
+
 export type Vec2 = [number, number]
 export type Circle = {
   center: Vec2
@@ -70,3 +72,20 @@ export const magnitude = (p: Vec2): number =>
 
 export const pointLineDistance = (p: Vec2, v: Vec2, w: Vec2): number =>
   magnitude(aToB(p, closestPointToLine(p, v, w)))
+
+export const outsideBounds = (circle: Circle): boolean => {
+  if (circle.center[0] - circle.radius < 0) {
+    return true
+  }
+  if (circle.center[0] + circle.radius > W) {
+    return true
+  }
+  if (circle.center[1] - circle.radius < 0) {
+    return true
+  }
+  if (circle.center[1] + circle.radius > H) {
+    return true
+  }
+
+  return false
+}
