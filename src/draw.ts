@@ -180,7 +180,7 @@ const drawMenu = (
     if (score > 0) {
       fn(score + ' over par')
     } else if (score === 0) {
-      fn('0 over/under par')
+      fn(score + ' over/under par')
     } else {
       fn(-score + ' under par')
     }
