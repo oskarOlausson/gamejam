@@ -67,16 +67,25 @@ const game = (): void => {
     clicked = true
   }
 
+  function abort(this: Window) {
+    mouseIsDown = false
+    while (ms.length > 0) {
+      ms.pop()
+    }
+  }
+
   window.addEventListener('keydown', onKeyDown)
   window.addEventListener('keyup', onKeyUp)
   window.addEventListener('mousedown', onMouseDown)
   window.addEventListener('mouseup', onMouseUp)
-  window.addEventListener('mouseout', onMouseUp)
+  window.addEventListener('mouseout', abort)
   window.addEventListener('mousemove', onMouseMove)
 
   window.addEventListener('touchstart', onMouseDown)
   window.addEventListener('touchmove', onTouchMove)
   window.addEventListener('touchend', onMouseUp)
+  window.addEventListener('touchleave', abort)
+  window.addEventListener('touchcancel', abort)
 
   // actual loop, uses request animation frame to run 60fps
   const loop = (state: State) => () => {
