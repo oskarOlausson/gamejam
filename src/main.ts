@@ -47,7 +47,6 @@ const game = (): void => {
   }
 
   function onMouseMove(this: Window, ev: MouseEvent) {
-    ev.preventDefault()
     if (mouseIsDown) {
       ms.push(getMousePositionInElement(canvas, ev))
     }
