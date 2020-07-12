@@ -19,6 +19,7 @@ import { W, H } from './constants'
 import { WindState, createWindState } from './wind'
 import { WIND_MAX_FRAMES } from './constants'
 import { easing } from 'ts-easing'
+import { minInList } from './utils'
 
 const travelPosition = (
   disc: Disc,
@@ -33,12 +34,16 @@ export const calculateDiscPosition = (state: State): Disc => {
     return disc
   }
 
-  const newPosition = add(
-    nextTravelFrame,
-    calculateWindVector(state.wind, state.frame, disc.travelStart),
-  )
+  const lastWVector: Vec2 =
+    disc.wind.length > 0 ? disc.wind[disc.wind.length - 1] : [0, 0]
 
-  const tree = state.trees[0]
+  const wVector = calculateWindVector(state.wind, state.frame)
+
+  const newPosition = add(nextTravelFrame, wVector)
+
+  const tree = minInList(state.trees, (tree) =>
+    pointLineDistance(tree.center, disc.center, newPosition),
+  )
   const combinedRadius = tree.radius + disc.radius
 
   if (
@@ -103,14 +108,14 @@ export const calculateDiscPosition = (state: State): Disc => {
     }
   }
 
-  return { ...disc, center: newPosition || disc.center }
+  return {
+    ...disc,
+    center: newPosition,
+    wind: [...disc.wind, add(wVector, lastWVector)],
+  }
 }
 
-export const calculateWindVector = (
-  wind: WindState,
-  thrownAt: number,
-  frame: number,
-): Vec2 => {
+export const calculateWindVector = (wind: WindState, frame: number): Vec2 => {
   const { startVector, endVector, startFrame } = wind
   const easingFunction = easing.linear
   const t = Math.min((frame - startFrame) / WIND_MAX_FRAMES, 1)
@@ -118,7 +123,7 @@ export const calculateWindVector = (
     startVector[0] - (startVector[0] - endVector[0]) * easingFunction(t)
   const newY =
     startVector[1] - (startVector[1] - endVector[1]) * easingFunction(t)
-  return multiply([newX, newY], frame - thrownAt)
+  return [newX, newY]
 }
 
 export const updateWind = (state: State): Partial<State> => {
@@ -141,12 +146,12 @@ const updateFlyingDisc = (state: State): Partial<State> => {
     const e: Vec2 = [W / 2 + 30, 0]
 
     return {
-      ...state,
       shot: [m, e],
       disc: {
         ...state.disc,
         travel: getTravel(state.disc.center, m, e),
         travelStart: state.frame,
+        wind: [],
       },
     }
   }
@@ -162,6 +167,7 @@ const updateFlyingDisc = (state: State): Partial<State> => {
       shot: [m, e],
       disc: {
         ...state.disc,
+        wind: [],
         travel: getTravel(state.disc.center, m, e),
         travelStart: state.frame,
       },

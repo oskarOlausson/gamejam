@@ -3,8 +3,7 @@
  */
 
 import { State, Disc } from './state'
-import { W, H } from './constants'
-import { Circle, Vec2, pointLineDistance } from './gjk'
+import { Circle, Vec2 } from './gjk'
 import { WindState } from './wind'
 import { calculateWindVector } from './update'
 import { Basket } from './basket'
@@ -63,7 +62,7 @@ const drawWindIndicator = (
   frame: number,
 ) => {
   context.save()
-  const [x, y] = calculateWindVector(windState, frame, frame - 1)
+  const [x, y] = calculateWindVector(windState, frame)
   const offsetX = 100
   const offsetY = 100
   context.strokeStyle = '5px #000'
@@ -138,8 +137,6 @@ export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   drawWindIndicator(context, state.wind, state.frame)
 
   if (state.youHaveWon) drawWinCondition(context)
-
-  state.shot.forEach((s) => drawDot(context, s))
 
   context.fillStyle = '#182'
   state.trees.forEach((t) => {

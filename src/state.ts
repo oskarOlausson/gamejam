@@ -10,6 +10,7 @@ import { Basket } from './basket'
 export type Disc = Circle & {
   travel: Vec2[]
   travelStart: number
+  wind: Vec2[]
 }
 
 export type State = {
@@ -34,12 +35,17 @@ export const init = (): State => ({
     travel: [],
     travelStart: 0,
     radius: 20,
+    wind: [],
   },
   shootNow: false,
   shot: [],
   trees: [
     {
-      center: [W / 2, H / 2],
+      center: [W / 2 - 20, H / 2],
+      radius: 20,
+    },
+    {
+      center: [W / 2 + 20, H / 2],
       radius: 20,
     },
   ],
