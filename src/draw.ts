@@ -73,17 +73,40 @@ const drawWindIndicator = (
   frame: number,
 ) => {
   context.save()
-  const [x, y] = calculateWindVector(windState, frame)
-  const offsetX = 100
-  const offsetY = 100
-  context.strokeStyle = '5px #000'
-  context.beginPath()
-  context.moveTo(offsetX, offsetY)
-  context.lineTo(offsetX + x * 20, offsetY + y * 20)
-  context.stroke()
-  context.beginPath()
-  context.arc(offsetX, offsetY, 20, 0, 2 * Math.PI)
-  context.stroke()
+  const [vx, vy] = multiply(calculateWindVector(windState, frame), 60)
+
+  const animationLength = 200
+  const index = frame % animationLength
+  const t = Math.max(0, index / animationLength - 0.2)
+
+  let seed = index
+  const random = (): number => {
+    const r = Math.sin(seed++) * 10000
+    return Math.abs(r - Math.floor(r))
+  }
+
+  for (let i = 0; i < 30; i++) {
+    const x = random() * W
+    const y = random() * H
+    let myT = t + i / 30
+    if (myT > 1) {
+      myT = 0
+    }
+
+    const goal: Vec2 = [x + vx, y + vy]
+
+    const alpha = 2 * Math.min(Math.abs(myT), Math.abs(1 - myT))
+    context.strokeStyle = 'rgba(255, 255, 255, ' + alpha + ')'
+    context.lineCap = 'round'
+    context.lineWidth = magnitude([vx, vy]) / 10
+    context.beginPath()
+    const [fx, fy] = lerp([x, y], goal, myT / 2)
+    context.moveTo(fx, fy)
+    const [tx, ty] = lerp([x, y], goal, myT)
+    context.lineTo(tx, ty)
+    context.stroke()
+  }
+
   context.restore()
 }
 
@@ -307,12 +330,13 @@ export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   )
   drawDisc(context, level.disc)
   drawBottomBasket(context, level.basket)
-  drawWindIndicator(context, level.wind, state.frame)
 
   context.fillStyle = '#182'
   level.trees.forEach((t) => {
     drawShape(context, t, 'fill')
   })
+
+  drawWindIndicator(context, level.wind, state.frame)
 
   drawWinCondition(context, state)
   context.restore()
