@@ -11,6 +11,7 @@ import * as levels from './levels'
 export type Disc = Circle & {
   travel: Vec2[]
   travelStart: number
+  wind: Vec2[]
 }
 
 export type Level = {

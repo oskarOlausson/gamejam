@@ -27,3 +27,21 @@ export const maxInList = <T>(xs: T[], maxFn: (x: T) => number): T => {
 
   return currentMaxItem
 }
+
+export const minInList = <T>(xs: T[], minFn: (x: T) => number): T => {
+  if (xs.length === 0) {
+    throw Error('No path, can´t give you max')
+  }
+  let currentMaxItem = xs[0]
+  let currentMax = minFn(currentMaxItem)
+
+  for (let i = 1; i < xs.length; i++) {
+    const newMax = minFn(xs[i])
+    if (newMax < currentMax) {
+      currentMaxItem = xs[i]
+      currentMax = minFn(xs[i])
+    }
+  }
+
+  return currentMaxItem
+}
