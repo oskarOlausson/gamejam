@@ -13,7 +13,7 @@ const makeSpial = (): Circle[] => {
 
     return {
       center: [x + W / 2, y + H / 2],
-      radius: 20,
+      radius: 13,
     }
   })
 }
