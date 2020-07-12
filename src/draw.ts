@@ -3,7 +3,17 @@
  */
 
 import { State, Disc } from './state'
-import { Circle, Vec2 } from './gjk'
+import {
+  Circle,
+  Vec2,
+  perpClockWise,
+  perpCounterClockWise,
+  multiply,
+  lerp,
+  aToB,
+  add,
+  distanceSquared,
+} from './gjk'
 import { WindState } from './wind'
 import { calculateWindVector } from './update'
 import { Basket } from './basket'
@@ -127,11 +137,76 @@ const drawWinCondition = (ctx: CanvasRenderingContext2D) => {
   ctx.save()
 }
 
+const drawShot = (
+  ctx: CanvasRenderingContext2D,
+  disc: Disc,
+  shot: Vec2[],
+  shotAt: number,
+  frame: number,
+) => {
+  if (shot.length < 2) {
+    return
+  }
+  ctx.save()
+
+  const alpha = Math.max(0, 1.3 - (frame - shotAt) / 60)
+
+  ctx.beginPath()
+
+  const start = shot[0]
+  const end = shot[shot.length - 1]
+  const nEnd = shot[shot.length - 2]
+
+  if (Math.sqrt(distanceSquared(start, end)) < 120) {
+    return
+  }
+
+  const lastDirection = aToB(nEnd, end)
+
+  const left = multiply(perpCounterClockWise(lastDirection), disc.radius)
+  const right = multiply(perpClockWise(lastDirection), disc.radius)
+
+  const gradient = ctx.createLinearGradient(start[0], start[1], end[0], end[1])
+  gradient.addColorStop(0, 'rgba(245, 233, 99,' + alpha + ')')
+  gradient.addColorStop(1, 'rgba(216, 30, 91, ' + alpha + ')')
+
+  ctx.fillStyle = gradient
+
+  ctx.moveTo(start[0], start[1])
+
+  const nrPoints = shot.length
+
+  shot.slice(1).forEach((pos, i) => {
+    const [x, y] = add(pos, lerp([0, 0], left, i / nrPoints))
+    ctx.lineTo(x, y)
+  })
+
+  shot
+    .slice(1)
+    .reverse()
+    .forEach((pos, i) => {
+      const [x, y] = add(pos, lerp([0, 0], right, 1 - i / nrPoints))
+      ctx.lineTo(x, y)
+    })
+
+  ctx.lineTo(start[0], start[1])
+
+  ctx.fill()
+  ctx.restore()
+}
+
 // Screen is cleared before this function is called so this functions only concern is drawing the new state
 export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   drawBackground(context)
 
   drawTopBasket(context, state.level.basket)
+  drawShot(
+    context,
+    state.level.disc,
+    state.lastTravel,
+    state.lastTravelAt,
+    state.frame,
+  )
   drawDisc(context, state.level.disc)
   drawBottomBasket(context, state.level.basket)
   drawWindIndicator(context, state.level.wind, state.frame)

@@ -150,24 +150,6 @@ export const updateWind = (state: State): Partial<State> => {
 }
 
 const updateFlyingDisc = (state: State): Partial<State> => {
-  if (!travelPosition(state.level.disc, state.frame) && state.keys.has('d')) {
-    const m: Vec2 = [W / 2 + 15, H / 2]
-    const e: Vec2 = [W / 2 + 30, 0]
-
-    return {
-      shot: [m, e],
-      level: {
-        ...state.level,
-        disc: {
-          ...state.level.disc,
-          travel: getTravel(state.level.disc.center, m, e),
-          travelStart: state.frame,
-          wind: [],
-        },
-      },
-    }
-  }
-
   if (!travelPosition(state.level.disc, state.frame) && state.shootNow) {
     const [m, e] = getShot(state.mouse)
 
@@ -175,14 +157,18 @@ const updateFlyingDisc = (state: State): Partial<State> => {
       return { ...state }
     }
 
+    const travel = getTravel(state.level.disc.center, m, e)
+
     return {
       shot: [m, e],
+      lastTravel: travel,
+      lastTravelAt: state.frame,
       level: {
         ...state.level,
         disc: {
           ...state.level.disc,
           wind: [],
-          travel: getTravel(state.level.disc.center, m, e),
+          travel,
           travelStart: state.frame,
         },
       },

@@ -28,6 +28,8 @@ export type State = {
   shootNow: boolean
   shot: Vec2[]
   level: Level
+  lastTravel: Vec2[]
+  lastTravelAt: number
 }
 
 export const init = (): State => ({
@@ -61,4 +63,6 @@ export const init = (): State => ({
   },
   shootNow: false,
   shot: [],
+  lastTravel: [],
+  lastTravelAt: 0,
 })
