@@ -30,7 +30,7 @@ export type State = {
   mouse: Vec2[]
   shootNow: boolean
   shot: Vec2[]
-  level: Level
+  currentLevel: number
   lastTravel: Vec2[]
   lastTravelAt: number
   levels: Level[]
@@ -43,8 +43,8 @@ export const init = (): State => ({
   keys: new Set(),
   frame: 0,
   mouse: [],
-  level: allLevels[0],
-  levels: allLevels.slice(1),
+  currentLevel: 0,
+  levels: allLevels.slice(0),
   shootNow: false,
   shot: [],
   lastTravel: [],

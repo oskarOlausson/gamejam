@@ -2,7 +2,7 @@
  * Draw game state based on current state
  */
 
-import { State, Disc } from './state'
+import { State, Disc, Level } from './state'
 import {
   Circle,
   Vec2,
@@ -162,7 +162,7 @@ const drawMenu = (
     context.textAlign = 'center'
     context.font = '30px Comic Sans MS'
     context.fillStyle = '#FFC0CB'
-    if (state.levels.length === 0) {
+    if (state.levels[state.levels.length - 1].wonAt !== null) {
       context.fillText('You won the game', W / 2, 100, W)
     } else {
       context.fillText('Click to go to next level', W / 2, 100, W)
@@ -190,7 +190,9 @@ const drawMenu = (
 }
 
 const drawWinCondition = (ctx: CanvasRenderingContext2D, state: State) => {
-  const wonAt = state.level.wonAt
+  const level = state.levels[state.currentLevel] as Level | undefined
+  if (!level) return
+  const wonAt = level?.wonAt
   if (wonAt === null) {
     return
   }
@@ -208,9 +210,8 @@ const drawWinCondition = (ctx: CanvasRenderingContext2D, state: State) => {
       drawShape(
         ctx,
         {
-          center: state.level.basket.center,
-          radius:
-            state.level.basket.radius + (1 - t) * (i / numberOfRings) * 300,
+          center: level.basket.center,
+          radius: level.basket.radius + (1 - t) * (i / numberOfRings) * 300,
         },
         'stroke',
       )
@@ -283,12 +284,12 @@ const drawShot = (
 
 // Screen is cleared before this function is called so this functions only concern is drawing the new state
 export const draw = (context: CanvasRenderingContext2D, state: State): void => {
+  const level = state.levels[state.currentLevel]
   context.save()
-  const travel = state.level.disc.travel
+  const travel = level.disc.travel
   if (
-    (state.level.wonAt !== null &&
-      state.frame - state.level.wonAt < RING_ANIMATION_TIME) ||
-    (state.frame - state.level.disc.travelStart < 8 &&
+    (level.wonAt !== null && state.frame - level.wonAt < RING_ANIMATION_TIME) ||
+    (state.frame - level.disc.travelStart < 8 &&
       travel.length > 2 &&
       magnitude(aToB(travel[0], travel[1])) > 10)
   ) {
@@ -296,20 +297,20 @@ export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   }
   drawBackground(context)
 
-  drawTopBasket(context, state.level.basket)
+  drawTopBasket(context, level.basket)
   drawShot(
     context,
-    state.level.disc,
+    level.disc,
     state.lastTravel,
     state.lastTravelAt,
     state.frame,
   )
-  drawDisc(context, state.level.disc)
-  drawBottomBasket(context, state.level.basket)
-  drawWindIndicator(context, state.level.wind, state.frame)
+  drawDisc(context, level.disc)
+  drawBottomBasket(context, level.basket)
+  drawWindIndicator(context, level.wind, state.frame)
 
   context.fillStyle = '#182'
-  state.level.trees.forEach((t) => {
+  level.trees.forEach((t) => {
     drawShape(context, t, 'fill')
   })
 

@@ -45,3 +45,9 @@ export const minInList = <T>(xs: T[], minFn: (x: T) => number): T => {
 
   return currentMaxItem
 }
+
+export const replaceAtIndex = <T>(xs: T[], x: T, index: number): T[] => [
+  ...xs.slice(0, index),
+  x,
+  ...xs.slice(index + 1),
+]
