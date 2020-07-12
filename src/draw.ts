@@ -4,7 +4,7 @@
 
 import { State } from './state'
 import { W, H } from './constants'
-import { Circle, Vec2 } from './gjk'
+import { Circle, Vec2, pointLineDistance } from './gjk'
 
 const drawShape = (
   context: CanvasRenderingContext2D,
@@ -77,4 +77,9 @@ export const draw = (context: CanvasRenderingContext2D, state: State): void => {
   )
 
   state.shot.forEach((s) => drawDot(context, s))
+
+  context.fillStyle = '#182'
+  state.trees.forEach((t) => {
+    drawShape(context, t, 'fill')
+  })
 }

@@ -16,7 +16,8 @@ export type State = {
   mouse: Vec2[]
   disc: Disc
   shootNow: boolean,
-  shot: Vec2[]
+  shot: Vec2[],
+  trees: Circle[]
 }
 
 export const init = (): State => ({
@@ -30,5 +31,11 @@ export const init = (): State => ({
     radius: 20,
   },
   shootNow: false,
-  shot: []
+  shot: [],
+  trees: [
+    {
+      center: [W / 2, H / 2],
+      radius: 20,
+    },
+  ],
 })

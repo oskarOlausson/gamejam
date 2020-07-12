@@ -9,3 +9,21 @@ export const getMousePositionInElement = (
   const y = event.clientY - rect.top
   return [x, y]
 }
+
+export const maxInList = <T>(xs: T[], maxFn: (x: T) => number): T => {
+  if (xs.length === 0) {
+    throw Error('No path, can´t give you max')
+  }
+  let currentMaxItem = xs[0]
+  let currentMax = maxFn(currentMaxItem)
+
+  for (let i = 1; i < xs.length; i++) {
+    const newMax = maxFn(xs[i])
+    if (newMax > currentMax) {
+      currentMaxItem = xs[i]
+      currentMax = maxFn(xs[i])
+    }
+  }
+
+  return currentMaxItem
+}

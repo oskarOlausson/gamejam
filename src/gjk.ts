@@ -27,14 +27,15 @@ export const dot = ([ax, ay]: Vec2, [bx, by]: Vec2): number => ax * bx + ay * by
 export const add = (...ps: Vec2[]): Vec2 =>
   ps.reduce(([ax, ay], [bx, by]) => [ax + bx, ay + by])
 
-export const collision = (
-  disc: Circle,
-  discVelocity: Vec2,
-  other: Circle,
-): Vec2 => {
-  const [nx, ny] = normalize(aToB(other.center, disc.center))
-  const scalar = 2 * dot(discVelocity, [nx, ny])
-  return aToB([scalar * nx, scalar * ny], discVelocity)
+export const getReflection = (from: Vec2, to: Vec2, other: Circle): Vec2 => {
+  const closest: Vec2 = closestPointToLine(other.center, from, to)
+
+  const normal = normalize(aToB(other.center, closest))
+  const velocity = minus([0, 0], aToB(from, to))
+
+  const scalar = (2 * dot(velocity, normal)) / dot(normal, normal)
+
+  return minus(multiply(normal, scalar), velocity)
 }
 
 export const perpClockWise = ([dx, dy]: Vec2): Vec2 => normalize([-dy, dx])
@@ -46,3 +47,22 @@ export const multiply = ([x, y]: Vec2, scalar: number): Vec2 => [
   x * scalar,
   y * scalar,
 ]
+
+export const closestPointToLine = (p: Vec2, v: Vec2, w: Vec2): Vec2 => {
+  const l2 = distanceSquared(v, w)
+  if (l2 === 0) return v
+  const t = Math.max(
+    0,
+    Math.min(
+      1,
+      ((p[0] - v[0]) * (w[0] - v[0]) + (p[1] - v[1]) * (w[1] - v[1])) / l2,
+    ),
+  )
+  return [v[0] + t * (w[0] - v[0]), v[1] + t * (w[1] - v[1])]
+}
+
+export const magnitude = (p: Vec2): number =>
+  Math.sqrt(distanceSquared([0, 0], p))
+
+export const pointLineDistance = (p: Vec2, v: Vec2, w: Vec2): number =>
+  magnitude(aToB(p, closestPointToLine(p, v, w)))
