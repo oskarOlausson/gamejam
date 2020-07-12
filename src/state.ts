@@ -7,6 +7,7 @@ import { Vec2, Circle } from './gjk'
 import { WindState, createWindState } from './wind'
 import { Basket } from './basket'
 import * as levels from './levels'
+import { treeAdder } from './tree-adder'
 
 export type Disc = Circle & {
   travel: Vec2[]
@@ -32,7 +33,7 @@ export type State = {
   levels: Level[]
 }
 
-const allLevels = Object.values(levels)
+const allLevels = Object.values(levels).map(treeAdder)
 
 export const init = (): State => ({
   keys: new Set(),
